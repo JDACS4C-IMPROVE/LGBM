@@ -1,10 +1,24 @@
 """ Train LightGBM for drug response prediction.
 
-Required outputs:
-    * Trained model
-    * Predictions on val data: val_scores.json
-    * Prediction performance val scores: val_y_data_predicted.csv
-    Everything in saved in params["model_outdir"]
+Required outputs
+----------------
+All the outputs from this train script are saved in params["model_outdir"].
+
+1. Trained model.
+   The model is trained with train data and validated with val data. The model
+   file name and file format are specified, respectively by
+   params["model_file_name"] and params["model_file_format"].
+   For LightGBM, the saved model:
+        model.txt
+
+2. Predictions on val data. 
+   Raw model predictions calcualted using the trained model on val data. The
+   predictions are saved in val_y_data_predicted.csv
+
+3. Prediction performance scores on val data.
+   The performance scores are calculated using the raw model predictions and
+   the true values for performance metrics specified in the metrics_list. The
+   scores are saved as json in val_scores.json
 """
 
 import sys

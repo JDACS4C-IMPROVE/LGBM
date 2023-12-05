@@ -1,9 +1,17 @@
-""" Inference with LightGBM drug response prediction.
+""" Inference with LightGBM for drug response prediction.
 
-Required outputs:
-    * Predictions on test data: test_scores.json
-    * Prediction performance test scores: test_y_data_predicted.csv
-    Everything in saved in params["infer_outdir"]
+Required outputs
+----------------
+All the outputs from this infer script are saved in params["infer_outdir"].
+
+1. Predictions on test data.
+   Raw model predictions calcualted using the trained model on test data. The
+   predictions are saved in test_y_data_predicted.csv
+
+2. Prediction performance scores on test data.
+   The performance scores are calculated using the raw model predictions and
+   the true values for performance metrics specified in the metrics_list. The
+   scores are saved as json in test_scores.json
 """
 
 import sys

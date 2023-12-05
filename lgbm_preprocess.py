@@ -1,13 +1,22 @@
-""" Preprocess raw data for drug response prediction to generate datasets for
-LightGBM.
+"""  Preprocess benchmark data (e.g., CSA data) to generate datasets for the
+LightGBM prediction model.
 
-Required outputs:
-    * Model input data files: train_data, val_data, and test_data
-        Data files that are used as inputs to an ML/DL model
-        The file format is specified by params["data_format"]
-    * Y data files: train_y_data.csv, val_y_data.csv, and test_y_data.csv
-        Dataframes with true y values and additional metadata
-    Everything is saved in params["ml_data_outdir"]
+Required outputs
+----------------
+All the outputs from this preprocessing script are saved in params["ml_data_outdir"].
+
+1. Model input data files.
+   This script creates three data files corresponding to train, validation,
+   and test data. These data files are used as inputs to the ML/DL model in
+   the train and infer scripts. The file format is specified by
+   params["data_format"].
+   For LightGBM, the generated files:
+        train_data.csv, val_data.csv, test_data.csv
+
+2. Y data files.
+   The script creates dataframes with true y values and additional metadata.
+   Generated files:
+        train_y_data.csv, val_y_data.csv, and test_y_data.csv.
 """
 
 import sys
