@@ -1,5 +1,5 @@
 [Global_Params]
-model_name = "GraphDRP"
+model_name = "LGBM"
 
 [Preprocess]
 train_split_file = "CCLE_split_0_train.txt"

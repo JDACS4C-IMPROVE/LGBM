@@ -2,10 +2,10 @@
 model_name = "GraphDRP"
 
 [Preprocess]
-train_split_file = "CCLE_split_0_train.txt"
-val_split_file = "CCLE_split_0_val.txt"
-test_split_file = "CTRPv2_all.txt"
-ml_data_outdir = "./ml_data/CCLE-CTRPv2/split_0"
+train_split_file = "CTRPv2_split_0_train.txt"
+val_split_file = "CTRPv2_split_0_val.txt"
+test_split_file = "CCLE_all.txt"
+ml_data_outdir = "./ml_data/CTRPv2-CCLE/split_0"
 data_format = ".parquet"
 y_data_files = [["response.tsv"]]
 x_data_canc_files = [["cancer_gene_expression.tsv", ["Gene_Symbol"]]]
@@ -14,13 +14,13 @@ use_lincs = True
 scaling = "std"
 
 [Train]
-train_ml_data_dir = "./ml_data/CCLE-CTRPv2/split_0"
-val_ml_data_dir = "./ml_data/CCLE-CTRPv2/split_0"
-model_outdir = "./out_models/CCLE/split_0"
+train_ml_data_dir = "./ml_data/CTRPv2-CCLE/split_0"
+val_ml_data_dir = "./ml_data/CTRPv2-CCLE/split_0"
+model_outdir = "./out_models/CTRPv2/split_0"
 model_file_name = "model"
 model_file_format = ".txt"
 
 [Infer]
-test_ml_data_dir = "./ml_data/CCLE-CTRPv2/split_0"
-model_dir = "./out_models/CCLE/split_0"
-infer_outdir = "./out_infer/CCLE-CTRPv2/split_0"
+test_ml_data_dir = "./ml_data/CTRPv2-CCLE/split_0"
+model_dir = "./out_models/CTRPv2/split_0"
+infer_outdir = "./out_infer/CTRPv2-CCLE/split_0"
