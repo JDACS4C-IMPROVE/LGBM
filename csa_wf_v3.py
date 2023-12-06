@@ -24,8 +24,8 @@ from ap_utils.utils import get_print_func, Timer
 fdir = Path(__file__).resolve().parent
 
 # ML_DATA_DIR = Path("./ml_data")
-# y_col_name = "auc"
-y_col_name = "auc1"
+y_col_name = "auc"
+# y_col_name = "auc1"
 maindir = Path(f"./{y_col_name}")
 MAIN_ML_DATA_DIR = Path(f"./{maindir}/ml_data")
 MAIN_MODEL_DIR = Path(f"./{maindir}/models")

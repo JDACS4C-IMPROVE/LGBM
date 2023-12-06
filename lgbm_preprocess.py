@@ -179,19 +179,16 @@ def run(params: Dict):
     # [Optional] Create feature scaler
     # ------------------------------------------------------
     # Load and combine responses
+    print("Create feature scaler.")
     rsp_tr = drp.DrugResponseLoader(params,
                                     split_file=params["train_split_file"],
                                     verbose=False).dfs["response.tsv"]
     rsp_vl = drp.DrugResponseLoader(params,
                                     split_file=params["val_split_file"],
                                     verbose=False).dfs["response.tsv"]
-    rsp_te = drp.DrugResponseLoader(params,
-                                    split_file=params["test_split_file"],
-                                    verbose=False).dfs["response.tsv"]
-    rsp = pd.concat([rsp_tr, rsp_vl, rsp_te], axis=0)
+    rsp = pd.concat([rsp_tr, rsp_vl], axis=0)
     # print(rsp_tr.shape) 
     # print(rsp_vl.shape) 
-    # print(rsp_te.shape) 
     # print(rsp.shape) 
 
     # # Intersection of drugs, cells, and responses
@@ -222,7 +219,7 @@ def run(params: Dict):
     joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
-    del rsp, rsp_tr, rsp_vl, rsp_te, df, ge_sub, md_sub, ge_sc, md_sc
+    del rsp, rsp_tr, rsp_vl, df, ge_sub, md_sub, ge_sc, md_sc
 
     # ------------------------------------------------------
     # [Req] Construct ML data for every stage (train, val, test)
