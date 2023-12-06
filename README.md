@@ -1,24 +1,20 @@
-This example repo demonstrates the use of LightGBM model for drug response prediction with improve lib and cross-study analysis (CSA) dataset.
+This repo demonstrates the use of [improve](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
-# Resources:
-+ README.md: this file.
-+ Data: CSA dataset
-
-## Dependencies
+# Dependencies
 Check `conda_env.sh`
 + [Candle-lib](https://github.com/ECP-CANDLE/candle_lib) -- improve lib dependency
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) -- ML model
 + [Pyarrow](https://anaconda.org/conda-forge/pyarrow) -- allows to save/load parquet files
 
 ## Source codes
-+ lgbm_preprocess_improve.py: create data from cell and drug files.
-+ lgbm_train_improve.py: train a LightGBM model.
-+ lgbm_infer_improve.py: infer responses with a trained LightGBM model.
-+ lgbm_params.txt: parameter file
++ `lgbm_preprocess_improve.py`: creates data files for drug resposne prediction (DRP)
++ `lgbm_train_improve.py`: trains a LightGBM DRP model
++ `lgbm_infer_improve.py`: runs inference with the trained LightGBM model
++ `lgbm_params.txt`: parameter file
 
 # Dataset
-Benchmark data for cross-study analysis (CSA) can be downloaded from this [site](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/)
-The required data tree is shown next:
+Benchmark data for cross-study analysis (CSA) can be downloaded from this [site](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
+The required data tree is shown below:
 
 ```
 csa_data/raw_data/
@@ -52,18 +48,22 @@ csa_data/raw_data/
     └── response.tsv
 ```
 
-# Step-by-step running:
+# Step-by-step running
 
-## 1. Define required environment variable to point towards data folder, e.g.
-Follow this repo to set up the env variables for IMPROVE_DATA_DIR and improve lib.
+## 1. Set the required computational environment
+* Install dependencies (check `conda_env.sh`
+* Set the required environment variables to point towards the data folder and improve lib.
+Follow this repo to set up the env variables for `IMPROVE_DATA_DIR` and improve lib.
 https://github.com/JDACS4C-IMPROVE/IMPROVE
 
 ## 2. Preprocess raw benchmark data to construct model input data
-```python lgbm_preprocess_improve.py```
+```bash
+python lgbm_preprocess_improve.py
+```
 
 This generates:
-* three model input data sets: train_data.parquet, val_data.parquet, infer_data.parquet
-* three data files containing the y data (and metadata): train_y_data.csv, val_y_data.csv, infer_y_data.csv
+* three model input data sets: `train_data.parquet`, `val_data.parquet`, `infer_data.parquet`
+* three data files containing the y data (and metadata): `train_y_data.csv`, `val_y_data.csv`, `infer_y_data.csv`
 
 ```
 ml_data
@@ -80,7 +80,9 @@ ml_data
 ```
 
 ## 3. Train the LightGBM model
-```python lgbm_train_improve.py```
+```bash
+python lgbm_train_improve.py
+```
 
 This trains LightGBM using the processed data: train_data.parquet (training), val_data.parquet (early stopping).
 
