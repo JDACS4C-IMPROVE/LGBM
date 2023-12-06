@@ -52,7 +52,7 @@ filepath = Path(__file__).resolve().parent # [Req]
 # 
 # There are two types of params in the list: default and required
 # default:   default values should be used
-# required:  these params must be specified for the model
+# required:  these params must be specified for the model in the param file
 app_preproc_params = [
     {"name": "y_data_files", # default
      "type": str,
@@ -193,88 +193,36 @@ def run(params: Dict):
 
     # Retian feature rows that are present in the y data (response dataframe)
     # Intersection of omics features, drug features, and responses
-    df = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
-    df =  df.merge(md[params["drug_col_name"]],  on=params["drug_col_name"], how="inner")
-    ge_sub = ge[ge[params["canc_col_name"]].isin(df[params["canc_col_name"]])].reset_index(drop=True)
-    md_sub = md[md[params["drug_col_name"]].isin(df[params["drug_col_name"]])].reset_index(drop=True)
+    rsp = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
+    rsp = rsp.merge(md[params["drug_col_name"]], on=params["drug_col_name"], how="inner")
+    ge_sub = ge[ge[params["canc_col_name"]].isin(rsp[params["canc_col_name"]])].reset_index(drop=True)
+    md_sub = md[md[params["drug_col_name"]].isin(rsp[params["drug_col_name"]])].reset_index(drop=True)
 
     # Scale gene expression
-    ge_sc, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
+    _, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
     ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
     joblib.dump(ge_scaler, ge_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
 
     # Scale Mordred descriptors
-    md_sc, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
+    _, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
     md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
     joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
 
-    del rsp, rsp_tr, rsp_vl, df, ge_sub, md_sub, ge_sc, md_sc
+    del rsp, rsp_tr, rsp_vl, ge_sub, md_sub
 
     # ------------------------------------------------------
     # [Req] Construct ML data for every stage (train, val, test)
+    # ------------------------------------------------------
     # All models must load response data (y data) using DrugResponseLoader().
     # Below, we iterate over the 3 split files (train, val, test) and load
     # response data, filtered by the split ids from the split files.
-    # ------------------------------------------------------
+
+    # Dict with split files corresponding to the three sets (train, val, and test)
     stages = {"train": params["train_split_file"],
               "val": params["val_split_file"],
               "test": params["test_split_file"]}
-    scaler = None
-
-    # # %%%%%%%%%%%%%%%
-    # # Create scaler
-    # # %%%%%%%%%%%%%%%
-    # # Combine responses
-    # # import ipdb; ipdb.set_trace()
-    # rsp_tr = drp.DrugResponseLoader(params,
-    #                                 split_file=params["train_split_file"],
-    #                                 verbose=False).dfs["response.tsv"]
-    # rsp_vl = drp.DrugResponseLoader(params,
-    #                                 split_file=params["val_split_file"],
-    #                                 verbose=False).dfs["response.tsv"]
-    # rsp_te = drp.DrugResponseLoader(params,
-    #                                 split_file=params["test_split_file"],
-    #                                 verbose=False).dfs["response.tsv"]
-    # rsp_dev = pd.concat([rsp_tr, rsp_vl, rsp_te], axis=0)
-    # print(rsp_tr.shape) 
-    # print(rsp_vl.shape) 
-    # print(rsp_te.shape) 
-    # print(rsp_dev.shape) 
-
-    # # # Intersection of drugs, cells, and responses
-    # # # import ipdb; ipdb.set_trace()
-    # # rsp_dev_sub, ge_sub = drp.get_common_samples(df1=rsp_dev, df2=ge,
-    # #                                              ref_col=params["canc_col_name"])
-    # # rsp_dev_sub, md_sub = drp.get_common_samples(df1=rsp_dev_sub, df2=md,
-    # #                                              ref_col=params["drug_col_name"])
-
-    # # Intersection of drugs, cells, and responses
-    # # import ipdb; ipdb.set_trace()
-    # df = rsp_dev.merge(ge[params["canc_col_name"]],
-    #                    on=params["canc_col_name"], how="inner")
-    # df = df.merge(md[params["drug_col_name"]],
-    #               on=params["drug_col_name"], how="inner")
-    # ge_sub = ge[ge[params["canc_col_name"]].isin(df[params["canc_col_name"]])].reset_index(drop=True)
-    # md_sub = md[md[params["drug_col_name"]].isin(df[params["drug_col_name"]])].reset_index(drop=True)
-    # rsp_dev_sub = df
-    # print(rsp_dev_sub.shape) 
-    # print(ge_sub.shape) 
-    # print(md_sub.shape) 
-
-    # # Scale
-    # # import ipdb; ipdb.set_trace()
-    # ge_sc, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    # md_sc, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
-    # ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
-    # md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
-    # joblib.dump(ge_scaler, ge_scaler_fpath)
-    # joblib.dump(md_scaler, md_scaler_fpath)
-    # print("Scaler object for gene expression: ", ge_scaler_fpath)
-    # print("Scaler object for Mordred:         ", md_scaler_fpath)
-    # del rsp_tr, rsp_vl, rsp_te, rsp_dev, rsp_dev_sub, ge_sub, md_sub, ge_sc, md_sc
-    # # %%%%%%%%%%%%%%%
 
     for stage, split_file in stages.items():
 
@@ -286,26 +234,22 @@ def run(params: Dict):
                                      verbose=False).dfs["response.tsv"]
 
         # --------------------------------
-        # [Optional] Data prep
+        # Data prep
         # --------------------------------
         # Retain (canc, drug) responses for which both omics and drug features
         # are available.
         rsp = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
         rsp = rsp.merge(md[params["drug_col_name"]], on=params["drug_col_name"], how="inner")
-        ge_sub = ge[ge[params["canc_col_name"]].isin(
-            rsp[params["canc_col_name"]])].reset_index(drop=True)
-        md_sub = md[md[params["drug_col_name"]].isin(
-            rsp[params["drug_col_name"]])].reset_index(drop=True)
+        ge_sub = ge[ge[params["canc_col_name"]].isin(rsp[params["canc_col_name"]])].reset_index(drop=True)
+        md_sub = md[md[params["drug_col_name"]].isin(rsp[params["drug_col_name"]])].reset_index(drop=True)
 
-        # ydf, ge_sub = drp.get_common_samples(df1=rsp, df2=ge, ref_col=params["canc_col_name"])
-        # ydf, md_sub = drp.get_common_samples(df1=ydf, df2=md, ref_col=params["drug_col_name"])
-
-        ge_sc, _ = scale_df(ge_sub, scaler=ge_scaler)  # Use dev scaler!
-        md_sc, _ = scale_df(md_sub, scaler=md_scaler)  # Use dev scaler!
-        print("GE mean:", ge_sc.iloc[:,1:].mean(axis=0).mean())
-        print("GE var: ", ge_sc.iloc[:,1:].var(axis=0).mean())
-        print("MD mean:", md_sc.iloc[:,1:].mean(axis=0).mean())
-        print("MD var: ", md_sc.iloc[:,1:].var(axis=0).mean())
+        # Scale features
+        ge_sc, _ = scale_df(ge_sub, scaler=ge_scaler) # scale gene expression
+        md_sc, _ = scale_df(md_sub, scaler=md_scaler) # scale Mordred descriptors
+        # print("GE mean:", ge_sc.iloc[:,1:].mean(axis=0).mean())
+        # print("GE var: ", ge_sc.iloc[:,1:].var(axis=0).mean())
+        # print("MD mean:", md_sc.iloc[:,1:].mean(axis=0).mean())
+        # print("MD var: ", md_sc.iloc[:,1:].var(axis=0).mean())
 
         # --------------------------------
         # [Req] Save ML data files in params["ml_data_outdir"]
@@ -315,27 +259,27 @@ def run(params: Dict):
         data_fname = frm.build_ml_data_name(params, stage)
 
         print("Merge data")
-        data = pd.merge(rsp, ge_sc, on=params["canc_col_name"], how="inner")
-        data = pd.merge(data, md_sc, on=params["drug_col_name"], how="inner")
+        data = rsp.merge(ge_sc, on=params["canc_col_name"], how="inner")
+        data = data.merge(md_sc, on=params["drug_col_name"], how="inner")
         data = data.sample(frac=1.0).reset_index(drop=True) # shuffle
 
         print("Save data")
-        # data.to_csv(Path(params["ml_data_outdir"])/data_fname, index=False)
-        data = data.drop(columns=["study"])
-        data.to_parquet(Path(params["ml_data_outdir"])/data_fname)
+        data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
+        data.to_parquet(Path(params["ml_data_outdir"])/data_fname) # saves ML data file to parquet
 
-        # [Req] Save y dataframe for the current stage
+        # Prepare the y dataframe for the current stage
         fea_list = ["ge", "mordred"]
         fea_cols = [c for c in data.columns if (c.split(fea_sep)[0]) in fea_list]
         meta_cols = [c for c in data.columns if (c.split(fea_sep)[0]) not in fea_list]
         ydf = data[meta_cols]
+
+        # [Req] Save y dataframe for the current stage
         frm.save_stage_ydf(ydf, params, stage)
 
     return params["ml_data_outdir"]
 
 
 # [Req]
-# def main():
 def main(args):
     # [Req]
     additional_definitions = preprocess_params
@@ -354,5 +298,4 @@ def main(args):
 
 # [Req]
 if __name__ == "__main__":
-    # main()
     main(sys.argv[1:])

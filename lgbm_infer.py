@@ -86,48 +86,31 @@ def run(params: Dict):
     test_data_fname = frm.build_ml_data_name(params, stage="test")
 
     # ------------------------------------------------------
-    # [GraphDRP] Prepare dataloaders
+    # Load model input data (ML data)
     # ------------------------------------------------------
-    # te_data = pd.read_csv(Path(params["test_ml_data_dir"])/test_data_fname)
     te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname)
 
     fea_list = ["ge", "mordred"]
     fea_sep = "."
+
+    # Test data
     xte = extract_subset_fea(te_data, fea_list=fea_list, fea_sep=fea_sep)
     yte = te_data[[params["y_col_name"]]]
     print("xte:", xte.shape)
     print("yte:", yte.shape)
 
-    # -----------------------------
-    # [GraphDRP] Load best model and compute preditions
-    # -----------------------------
-    # import ipdb; ipdb.set_trace()
-    # test_true, test_pred = evaluate_model(params["model_arch"], device, indtd["model"], test_loader)
-    # test_true, test_pred = evaluate_model(params, device, modelpath, test_loader)
-
+    # ------------------------------------------------------
+    # Load best model and compute predictions
+    # ------------------------------------------------------
+    # Build model path
     modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # [Req]
 
     # Load LightGBM
     model = lgb.Booster(model_file=str(modelpath))
 
-    # # Load the (best) saved model (as determined based on val data)
-    # modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # [Req]
-    # model = load_GraphDRP(params, modelpath, device)
-    # model.eval()
-
-    # Compute predictions
-    # test_true, test_pred = predicting(model, device, data_loader=test_loader) # (groud truth), (predictions)
-
     # Predict
     test_pred = model.predict(xte)
     test_true = yte.values.squeeze()
-    # y_pred = model.predict(xvl)
-    # y_true = yvl.values.squeeze()
-    # pred = pd.DataFrame({"True": y_true, "Pred": y_pred})
-    # vl_df = vl_data[[params["drug_col_name"], params["canc_col_name"], params["y_col_name"]]]
-    # pred = pd.concat([vl_df, pred], axis=1)
-    # assert sum(pred["True"] == pred[trg_name]) == pred.shape[0], "Columns 'AUC' and 'True' are the ground truth."
-   
 
     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
@@ -151,7 +134,6 @@ def run(params: Dict):
 
 
 # [Req]
-# def main():
 def main(args):
     # [Req]
     additional_definitions = preprocess_params + train_params + infer_params
@@ -170,5 +152,4 @@ def main(args):
 
 # [Req]
 if __name__ == "__main__":
-    # main()
     main(sys.argv[1:])

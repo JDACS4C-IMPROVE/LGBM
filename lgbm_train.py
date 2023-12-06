@@ -106,64 +106,52 @@ def run(params: Dict):
     val_data_fname = frm.build_ml_data_name(params, stage="val")
 
     # ------------------------------------------------------
-    # [Optional] Prepare dataloaders
+    # Load model input data (ML data)
     # ------------------------------------------------------
     tr_data = pd.read_parquet(Path(params["train_ml_data_dir"])/train_data_fname)
     vl_data = pd.read_parquet(Path(params["val_ml_data_dir"])/val_data_fname)
 
     fea_list = ["ge", "mordred"]
     fea_sep = "."
+
+    # Train data
     xtr = extract_subset_fea(tr_data, fea_list=fea_list, fea_sep=fea_sep)
     ytr = tr_data[[params["y_col_name"]]]
+    print("xtr:", xtr.shape)
+    print("ytr:", ytr.shape)
+
+    # Val data
     xvl = extract_subset_fea(vl_data, fea_list=fea_list, fea_sep=fea_sep)
     yvl = vl_data[[params["y_col_name"]]]
-    print("xtr:", xtr.shape)
     print("xvl:", xvl.shape)
-    print("ytr:", ytr.shape)
     print("yvl:", yvl.shape)
 
     # ------------------------------------------------------
-    # [GraphDRP] Prepare, train, and save model
+    # Prepare, train, and save model
     # ------------------------------------------------------
-    # Train model
-    # import ipdb; ipdb.set_trace()
+    # Prepare model
     ml_init_args = {'n_estimators': 1000, 'max_depth': -1,
                     'learning_rate': params["learning_rate"],
                     'num_leaves': 31, 'n_jobs': 8, 'random_state': None}
     ml_fit_args = {'verbose': False, 'early_stopping_rounds': 50}
     ml_fit_args['eval_set'] = (xvl, yvl)
     model = lgb.LGBMRegressor(objective='regression', **ml_init_args)
+
+    # Train model
     model.fit(xtr, ytr, **ml_fit_args)
 
     # Save model
-    # import ipdb; ipdb.set_trace()
     model.booster_.save_model(str(modelpath))
-
-    # ------------------------------------------------------
-    # [GraphDRP] Load best model and compute preditions
-    # ------------------------------------------------------
-    # import ipdb; ipdb.set_trace()
-    # val_true, val_pred = evaluate_model(params, device, modelpath, val_loader)
-
-    # Load the (best) saved model (as determined based on val data)
-    # model = load_GraphDRP(params, modelpath, device)
-    # model.eval()
-
     del model
+
+    # ------------------------------------------------------
+    # Load best model and compute predictions
+    # ------------------------------------------------------
     model = lgb.Booster(model_file=str(modelpath))
 
     # Compute predictions
-    # val_true, val_pred = predicting(model, device, data_loader=val_loader) # (groud truth), (predictions)
-
-    # Predict
     val_pred = model.predict(xvl)
     val_true = yvl.values.squeeze()
-    # y_pred = model.predict(xvl)
-    # y_true = yvl.values.squeeze()
-    # pred = pd.DataFrame({"True": y_true, "Pred": y_pred})
-    # vl_df = vl_data[[params["drug_col_name"], params["canc_col_name"], params["y_col_name"]]]
-    # pred = pd.concat([vl_df, pred], axis=1)
-    # assert sum(pred["True"] == pred[trg_name]) == pred.shape[0], "Columns 'AUC' and 'True' are the ground truth."
    
     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
@@ -187,7 +175,6 @@ def run(params: Dict):
 
 
 # [Req]
-# def main():
 def main(args):
     # [Req]
     additional_definitions = preprocess_params + train_params
@@ -206,5 +193,4 @@ def main(args):
 
 # [Req]
 if __name__ == "__main__":
-    # main()
     main(sys.argv[1:])
