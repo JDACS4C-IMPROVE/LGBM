@@ -14,9 +14,9 @@ from improve import framework as frm
 # from improve_utils import improve_globals as ig
 
 # LightGBM imports
-import lgbm_preprocess
-import lgbm_train
-import lgbm_infer
+import lgbm_preprocess_improve
+import lgbm_train_improve
+import lgbm_infer_improve
 
 # from ap_utils.classlogger import Logger
 from ap_utils.utils import get_print_func, Timer
@@ -82,9 +82,9 @@ only_cross_study = True
 
 ## Splits
 # split_nums = []  # all splits
-# split_nums = [0]
+split_nums = [0]
 # split_nums = [4, 7]
-split_nums = [1, 4, 7]
+# split_nums = [1, 4, 7]
 # split_nums = [1, 3, 5, 7, 9]
 
 ## Parameters of the experiment/run/workflow
@@ -182,7 +182,7 @@ for source_data_name in source_datasets:
             # import pdb; pdb.set_trace()
             preprocess_run = ["python",
                   # "graphdrp_preprocess_improve.py",
-                  "lgbm_preprocess.py",
+                  "lgbm_preprocess_improve.py",
                   "--train_split_file", str(train_split_file),
                   "--val_split_file", str(val_split_file),
                   "--test_split_file", str(test_split_file),
@@ -219,7 +219,7 @@ for source_data_name in source_datasets:
                 # import pdb; pdb.set_trace()
                 train_run = ["python",
                       # "graphdrp_train_improve.py",
-                      "lgbm_train.py",
+                      "lgbm_train_improve.py",
                       "--train_ml_data_dir", str(train_ml_data_dir),
                       "--val_ml_data_dir", str(val_ml_data_dir),
                       "--model_outdir", str(model_outdir),
@@ -251,7 +251,7 @@ for source_data_name in source_datasets:
             # import pdb; pdb.set_trace()
             infer_run = ["python",
                   # "graphdrp_infer_improve.py",
-                  "lgbm_infer.py",
+                  "lgbm_infer_improve.py",
                   "--test_ml_data_dir", str(test_ml_data_dir),
                   "--model_dir", str(model_dir),
                   "--infer_outdir", str(infer_outdir),

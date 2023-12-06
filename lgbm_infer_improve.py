@@ -30,8 +30,8 @@ from improve.metrics import compute_metrics
 from model_utils.utils import extract_subset_fea
 
 # [Req] Imports from preprocess and train scripts
-from lgbm_preprocess import preprocess_params
-from lgbm_train import metrics_list, train_params
+from lgbm_preprocess_improve import preprocess_params
+from lgbm_train_improve import metrics_list, train_params
 
 filepath = Path(__file__).resolve().parent # [Req]
 
