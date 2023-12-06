@@ -63,7 +63,7 @@ python lgbm_preprocess_improve.py
 
 This generates:
 * three model input data sets: `train_data.parquet`, `val_data.parquet`, `infer_data.parquet`
-* three data files containing the y data (and metadata): `train_y_data.csv`, `val_y_data.csv`, `infer_y_data.csv`
+* three data files, each containing y data (responses) and metadata: `train_y_data.csv`, `val_y_data.csv`, `infer_y_data.csv`
 
 ```
 ml_data
@@ -84,12 +84,12 @@ ml_data
 python lgbm_train_improve.py
 ```
 
-This trains LightGBM using the processed data: train_data.parquet (training), val_data.parquet (early stopping).
+This trains LightGBM using the processed data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
 
 This generates:
-* trained model: model.txt
-* prediction on val data: val_y_data_predicted.csv
-* prediction performance scores on val data: val_scores.json
+* trained model: `model.txt`
+* predictions on val data: `val_y_data_predicted.csv`
+* prediction performance scores on val data: `val_scores.json`
 ```
 out_models
 └── CCLE
@@ -102,12 +102,11 @@ out_models
 ## 4. Run the trained model in inference on test data
 ```python lgbm_infer_improve.py```
 
-The scripts uses processed data and the trained model to evaluate performance which is stored in files: `test_scores.json` and `test_predicted.csv`.
+The script uses processed data and the trained model to evaluate performance.
 
 This generates:
-* trained model: model.txt
-* prediction on test data: test_y_data_predicted.csv
-* prediction performance scores on test data: test_scores.json
+* predictions on test data: `test_y_data_predicted.csv`
+* prediction performance scores on test data: `test_scores.json`
 ```
 out_infer
 └── CCLE-CCLE
