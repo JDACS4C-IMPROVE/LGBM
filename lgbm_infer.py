@@ -76,7 +76,7 @@ def run(params: Dict):
     # import ipdb; ipdb.set_trace()
 
     # ------------------------------------------------------
-    # [Req] Create output dir for the inference results
+    # [Req] Create output dir
     # ------------------------------------------------------
     frm.create_outdir(outdir=params["infer_outdir"])
 

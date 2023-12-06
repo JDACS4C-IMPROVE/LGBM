@@ -131,24 +131,27 @@ def run(params: Dict):
     # import pdb; pdb.set_trace()
 
     # ------------------------------------------------------
-    # [Req] Build paths and create ML data dir
+    # [Req] Build paths and create output dir
     # ------------------------------------------------------
     # Build paths for raw_data, x_data, y_data, splits
     params = frm.build_paths(params)  
 
-    # Create output dir for ML data (to save preprocessed data)
+    # Create output dir for model input data (to save preprocessed ML data)
     frm.create_outdir(outdir=params["ml_data_outdir"])
 
     # ------------------------------------------------------
     # [Req] Load X data (feature representations)
     # ------------------------------------------------------
-    # Benchmark data includes three dirs: x_data, y_data, and splits.
+    # Use the provided data loaders to load data that is required by the model.
+    #
+    # Benchmark data includes three dirs: x_data, y_data, splits.
     # The x_data contains files that represent feature information such as
-    # cancer representation (omics data) and drug representation (SMILES, etc.).
+    # cancer representation (e.g., omics) and drug representation (e.g., SMILES).
+    #
     # Prediction models utilize various types of feature representations.
     # Drug response prediction (DRP) models generally use omics and drug features.
-    # ...
-    # If the model uses omics data types that are provided as part of benchmark
+    #
+    # If the model uses omics data types that are provided as part of the benchmark
     # data, then the model must use the provided data loaders to load the data files
     # from the x_data dir.
     print("\nLoads omics data.")
@@ -160,12 +163,12 @@ def run(params: Dict):
     drugs_obj = drp.DrugsLoader(params)
     # print(drugs_obj)
     md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
-    md = md.reset_index()
+    md = md.reset_index()  # TODO. implement reset_index() inside the loader
 
     # ------------------------------------------------------
-    # [Optional] Further preprocess X data
+    # Further preprocess X data
     # ------------------------------------------------------
-    # Gene selection (LINCS landmark genes)
+    # Gene selection (based on LINCS landmark genes)
     if params["use_lincs"]:
         genes_fpath = filepath/"landmark_genes"
         ge = gene_selection(ge, genes_fpath, canc_col_name=params["canc_col_name"])
@@ -176,7 +179,7 @@ def run(params: Dict):
     ge = ge.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge.columns[1:]})
 
     # ------------------------------------------------------
-    # [Optional] Create feature scaler
+    # Create feature scaler
     # ------------------------------------------------------
     # Load and combine responses
     print("Create feature scaler.")
@@ -187,38 +190,26 @@ def run(params: Dict):
                                     split_file=params["val_split_file"],
                                     verbose=False).dfs["response.tsv"]
     rsp = pd.concat([rsp_tr, rsp_vl], axis=0)
-    # print(rsp_tr.shape) 
-    # print(rsp_vl.shape) 
-    # print(rsp.shape) 
 
-    # # Intersection of drugs, cells, and responses
-    # # import ipdb; ipdb.set_trace()
-    # rsp_dev_sub, ge_sub = drp.get_common_samples(df1=rsp_dev, df2=ge,
-    #                                              ref_col=params["canc_col_name"])
-    # rsp_dev_sub, md_sub = drp.get_common_samples(df1=rsp_dev_sub, df2=md,
-    #                                              ref_col=params["drug_col_name"])
-
+    # Retian feature rows that are present in the y data (response dataframe)
     # Intersection of omics features, drug features, and responses
-    df = rsp.merge(ge[params["canc_col_name"]],
-                       on=params["canc_col_name"], how="inner")
-    df = df.merge(md[params["drug_col_name"]],
-                  on=params["drug_col_name"], how="inner")
+    df = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
+    df =  df.merge(md[params["drug_col_name"]],  on=params["drug_col_name"], how="inner")
     ge_sub = ge[ge[params["canc_col_name"]].isin(df[params["canc_col_name"]])].reset_index(drop=True)
     md_sub = md[md[params["drug_col_name"]].isin(df[params["drug_col_name"]])].reset_index(drop=True)
-    # rsp_sub = df
-    # print(rsp_sub.shape)
-    # print(ge_sub.shape)
-    # print(md_sub.shape)
 
-    # Scale
+    # Scale gene expression
     ge_sc, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    md_sc, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
     ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
-    md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
     joblib.dump(ge_scaler, ge_scaler_fpath)
-    joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
+
+    # Scale Mordred descriptors
+    md_sc, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
+    md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
+    joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
+
     del rsp, rsp_tr, rsp_vl, df, ge_sub, md_sub, ge_sc, md_sc
 
     # ------------------------------------------------------

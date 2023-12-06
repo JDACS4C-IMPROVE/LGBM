@@ -91,9 +91,12 @@ def run(params: Dict):
     # import pdb; pdb.set_trace()
 
     # ------------------------------------------------------
-    # [Req] Create output dir for the model
+    # [Req] Create output dir and build model path
     # ------------------------------------------------------
+    # Create output dir for trained model, val set predictions, val set performance scores
     frm.create_outdir(outdir=params["model_outdir"])
+
+    # Build model path
     modelpath = frm.build_model_path(params, model_dir=params["model_outdir"])
 
     # ------------------------------------------------------
