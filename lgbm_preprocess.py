@@ -26,7 +26,7 @@ from typing import Dict
 import pandas as pd
 import joblib
 
-# [Req] IMPROVE imports
+# [Req] IMPROVE/CANDLE imports
 from improve import framework as frm
 from improve import drug_resp_pred as drp
 
@@ -35,30 +35,37 @@ from model_utils.utils import gene_selection, scale_df
 
 filepath = Path(__file__).resolve().parent # [Req]
 
-# [Req] App-specific params (App: monotherapy drug response prediction)
-# The list app_preproc_params should be included in the *preprocess*.py
-# script in all models.
-# There are two types of params in the list: default and [Req]
-# default params:
-#   default values should be used
-# [Req] params:
-#   The [Req] params must be specified for the model.
-#   These params should be specified in a parameter file that is passed as 
-#   default_model arg in frm.initialize_parameters().
-#   The parameter file is often called [modelname]_default_model.txt
+# ---------------------
+# [Req] Parameter lists
+# ---------------------
+# Two parameter lists are required:
+# 1. app_preproc_params
+# 2. model_preproc_params
+# 
+# The values for the parameters in both lists should be specified in a
+# parameter file that is passed as default_model arg in
+# frm.initialize_parameters().
+
+# 1. App-specific params (App: monotherapy drug response prediction)
+# Note! This list should not be modified (i.e., no params should added or
+# removed from the list.
+# 
+# There are two types of params in the list: default and required
+# default:   default values should be used
+# required:  these params must be specified for the model
 app_preproc_params = [
     {"name": "y_data_files", # default
      "type": str,
      "help": "List of files that contain the y (prediction variable) data. \
              Example: [['response.tsv']]",
     },
-    {"name": "x_data_canc_files", # [Req]
+    {"name": "x_data_canc_files", # required
      "type": str,
      "help": "List of feature files including gene_system_identifer. Examples: \n\
              1) [['cancer_gene_expression.tsv', ['Gene_Symbol']]] \n\
              2) [['cancer_copy_number.tsv', ['Ensembl', 'Entrez']]].",
     },
-    {"name": "x_data_drug_files", # [Req]
+    {"name": "x_data_drug_files", # required
      "type": str,
      "help": "List of feature files. Examples: \n\
              1) [['drug_SMILES.tsv']] \n\
@@ -76,7 +83,7 @@ app_preproc_params = [
     },
 ]
 
-# [Req] Model-specific params (Model: LightGBM)
+# 2. Model-specific params (Model: LightGBM)
 # All params in model_preproc_params are optional.
 # If no params are required by the model, then it should be an empty list.
 model_preproc_params = [
@@ -103,9 +110,11 @@ model_preproc_params = [
     },
 ]
 
-# [Req]
+# [Req] Combine the two lists (the combined parameter list will be passed to
+# frm.initialize_parameters() in the main().
 preprocess_params = app_preproc_params + model_preproc_params
-# req_preprocess_params = [ll["name"] for ll in preprocess_params]
+# req_preprocess_params = []
+# ---------------------
 
 
 # [Req]
@@ -113,7 +122,7 @@ def run(params: Dict):
     """ Run data preprocessing.
 
     Args:
-        params (dict): A dictionary of CANDLE/IMPROVE keywords and parsed values.
+        params (dict): dict of CANDLE/IMPROVE parameters and parsed values.
 
     Returns:
         str: directory name that was used to save the preprocessed (generated)
@@ -344,17 +353,15 @@ def main(args):
     additional_definitions = preprocess_params
     params = frm.initialize_parameters(
         filepath,
-        # default_model="graphdrp_default_model.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
         default_model="lgbm_params.txt",
         # default_model="lgbm_params_ws.txt",
         # default_model="lgbm_params_cs.txt",
         additional_definitions=additional_definitions,
         # required=req_preprocess_params,
+        required=None,
     )
     ml_data_outdir = run(params)
-    print("\nFinished data preprocessing (transformed raw DRP data to model input ML data).")
+    print("\nFinished data preprocessing.")
 
 
 # [Req]

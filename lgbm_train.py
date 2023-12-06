@@ -41,19 +41,25 @@ from lgbm_preprocess import preprocess_params
 
 filepath = Path(__file__).resolve().parent # [Req]
 
-# [Req] App-specific params (App: monotherapy drug response prediction)
-# Currently, there are no app-specific args in the train script.
+# ---------------------
+# [Req] Parameter lists
+# ---------------------
+# Two parameter lists are required:
+# 1. app_train_params
+# 2. model_train_params
+# 
+# The values for the parameters in both lists should be specified in a
+# parameter file that is passed as default_model arg in
+# frm.initialize_parameters().
+
+# 1. App-specific params (App: monotherapy drug response prediction)
+# Currently, there are no app-specific params for this script.
 app_train_params = []
 
-# [Req] Model-specific params (Model: LightGBM)
+# 2. Model-specific params (Model: LightGBM)
 # All params in model_train_params are optional.
 # If no params are required by the model, then it should be an empty list.
 model_train_params = [
-    {"name": "cuda_name",  # TODO. How should we control this?
-     "action": "store",
-     "type": str,
-     "help": "Cuda device (e.g.: cuda:0, cuda:1."
-     },
     {"name": "learning_rate",
      "type": float,
      "default": 0.1,
@@ -61,9 +67,11 @@ model_train_params = [
     },
 ]
 
-# [Req]
+# [Req] Combine the two lists (the combined parameter list will be passed to
+# frm.initialize_parameters() in the main().
 train_params = app_train_params + model_train_params
-# req_train_args = ["model_outdir", "train_ml_data_dir", "val_ml_data_dir"]
+# req_train_params = ["model_outdir", "train_ml_data_dir", "val_ml_data_dir"]
+# ---------------------
 
 # [Req] List of metrics names to compute prediction performance scores
 metrics_list = ["mse", "rmse", "pcc", "scc", "r2"]  
@@ -74,11 +82,11 @@ def run(params: Dict):
     """ Run model training.
 
     Args:
-        params (dict): A dictionary of CANDLE/IMPROVE keywords and parsed values.
+        params (dict): dict of CANDLE/IMPROVE parameters and parsed values.
 
     Returns:
-        dict: dict of prediction performance scores computed on
-            validation data according to the metrics list.
+        dict: prediction performance scores computed on validation data
+            according to the metrics_list.
     """
     # import pdb; pdb.set_trace()
 
@@ -182,15 +190,12 @@ def main(args):
     additional_definitions = preprocess_params + train_params
     params = frm.initialize_parameters(
         filepath,
-        # default_model="graphdrp_default_model.txt",
-        # default_model="graphdrp_csa_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
         default_model="lgbm_params.txt",
-        # default_model="lgb_params_ws.txt",
-        # default_model="lgb_params_cs.txt",
+        # default_model="lgbm_params_ws.txt",
+        # default_model="lgbm_params_cs.txt",
         additional_definitions=additional_definitions,
-        # required=req_train_args,
+        # required=req_train_params,
+        required=None,
     )
     val_scores = run(params)
     print("\nFinished model training.")

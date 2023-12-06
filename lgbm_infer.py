@@ -35,27 +35,43 @@ from lgbm_train import metrics_list, train_params
 
 filepath = Path(__file__).resolve().parent # [Req]
 
-# [Req] App-specific params (App: monotherapy drug response prediction)
+# ---------------------
+# [Req] Parameter lists
+# ---------------------
+# Two parameter lists are required:
+# 1. app_infer_params
+# 2. model_infer_params
+# 
+# The values for the parameters in both lists should be specified in a
+# parameter file that is passed as default_model arg in
+# frm.initialize_parameters().
+
+# 1. App-specific params (App: monotherapy drug response prediction)
+# Currently, there are no app-specific params in this script.
 app_infer_params = []
 
-# [Req] Model-specific params (Model: LightGBM)
+# 2. Model-specific params (Model: LightGBM)
+# All params in model_infer_params are optional.
+# If no params are required by the model, then it should be an empty list.
 model_infer_params = []
 
-# [Req]
+# [Req] Combine the two lists (the combined parameter list will be passed to
+# frm.initialize_parameters() in the main().
 infer_params = app_infer_params + model_infer_params
 # req_infer_params = []
+# ---------------------
 
 
 # [Req]
-def run(params):
+def run(params: Dict):
     """ Run model inference.
 
     Args:
-        params (dict): A dictionary of CANDLE/IMPROVE keywords and parsed values.
+        params (dict): dict of CANDLE/IMPROVE parameters and parsed values.
 
     Returns:
-        dict: dict of prediction performance scores computed on
-            test data according to the metrics list.
+        dict: prediction performance scores computed on test data according
+            to the metrics_list.
     """
     # import ipdb; ipdb.set_trace()
 
@@ -141,15 +157,11 @@ def main(args):
     additional_definitions = preprocess_params + train_params + infer_params
     params = frm.initialize_parameters(
         filepath,
-        # default_model="graphdrp_default_model.txt",
-        # default_model="graphdrp_csa_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
         default_model="lgbm_params.txt",
         # default_model="lgbm_params_ws.txt",
         # default_model="lgbm_params_cs.txt",
         additional_definitions=additional_definitions,
-        # required=req_infer_args,
+        # required=req_infer_params,
         required=None,
     )
     test_scores = run(params)
