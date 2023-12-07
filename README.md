@@ -51,7 +51,11 @@ csa_data/raw_data/
 # Step-by-step running
 
 ## 1. Set the required computational environment
-* Install dependencies (check `conda_env.sh`
+* Download benchmark data
+```
+sh ./download_csa.sh
+```
+* Install dependencies (check `conda_env.sh`)
 * Set the required environment variables to point towards the data folder and improve lib.
 Follow this repo to set up the env variables for `IMPROVE_DATA_DIR` and improve lib.
 https://github.com/JDACS4C-IMPROVE/IMPROVE
@@ -60,7 +64,10 @@ https://github.com/JDACS4C-IMPROVE/IMPROVE
 ```bash
 python lgbm_preprocess_improve.py
 ```
-
+or 
+```bash
+sh preprocess_example.sh
+```
 This generates:
 * three model input data sets: `train_data.parquet`, `val_data.parquet`, `infer_data.parquet`
 * three data files, each containing y data (responses) and metadata: `train_y_data.csv`, `val_y_data.csv`, `infer_y_data.csv`
