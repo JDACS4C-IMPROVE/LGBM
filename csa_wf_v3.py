@@ -1,6 +1,4 @@
 """ Python implementation of cross-study analysis workflow """
-# cuda_name = "cuda:6"
-# cuda_name = "cuda:7"
 
 import os
 import warnings
@@ -23,7 +21,6 @@ from ap_utils.utils import get_print_func, Timer
 
 fdir = Path(__file__).resolve().parent
 
-# ML_DATA_DIR = Path("./ml_data")
 y_col_name = "auc"
 # y_col_name = "auc1"
 maindir = Path(f"./{y_col_name}")
@@ -56,8 +53,8 @@ print_fn(f"File path: {fdir}")
 
 ### Source and target data sources
 ## Set 1 - full analysis
-# source_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
-# target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
+source_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
+target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
 ## Set 2 - smaller datasets
 # source_datasets = ["CCLE", "gCSI", "GDSCv1", "GDSCv2"]
 # target_datasets = ["CCLE", "gCSI", "GDSCv1", "GDSCv2"]
@@ -65,8 +62,8 @@ print_fn(f"File path: {fdir}")
 # target_datasets = ["CCLE", "gCSI", "GDSCv1", "GDSCv2"]
 ## Set 3 - full analysis for a single source
 # source_datasets = ["CCLE"]
-source_datasets = ["CTRPv2"]
-target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
+# source_datasets = ["CTRPv2"]
+# target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
 # target_datasets = ["CCLE", "gCSI", "GDSCv1", "GDSCv2"]
 # target_datasets = ["CCLE", "gCSI", "GDSCv2"]
 # target_datasets = ["GDSCv1"]
@@ -77,12 +74,12 @@ target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
 # source_datasets = ["CCLE"]
 # target_datasets = ["GDSCv1"]
 
-# only_cross_study = False
-only_cross_study = True
+only_cross_study = False
+# only_cross_study = True
 
 ## Splits
-# split_nums = []  # all splits
-split_nums = [0]
+split_nums = []  # all splits
+# split_nums = [0]
 # split_nums = [4, 7]
 # split_nums = [1, 4, 7]
 # split_nums = [1, 3, 5, 7, 9]
@@ -92,7 +89,7 @@ split_nums = [0]
 # config_file_name = "csa_params.txt"
 # config_file_path = fdir/config_file_name
 
-def build_split_fname(source, split, phasea):
+def build_split_fname(source: str, split: int, phase: str):
     """ Build split file name. If file does not exist continue """
     return f"{source_data_name}_split_{split}_{phase}.txt"
 
