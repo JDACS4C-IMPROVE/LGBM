@@ -69,7 +69,7 @@ or
 sh preprocess_example.sh
 ```
 This generates:
-* three model input data sets: `train_data.parquet`, `val_data.parquet`, `infer_data.parquet`
+* three model input data files: `train_data.parquet`, `val_data.parquet`, `infer_data.parquet`
 * three data files, each containing y data (responses) and metadata: `train_y_data.csv`, `val_y_data.csv`, `infer_y_data.csv`
 
 ```
