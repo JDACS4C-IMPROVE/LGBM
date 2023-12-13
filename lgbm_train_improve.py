@@ -31,7 +31,7 @@ import lightgbm as lgb
 
 # [Req] IMPROVE/CANDLE imports
 from improve import framework as frm
-from improve.metrics import compute_metrics
+# from improve.metrics import compute_metrics
 
 # Model-specifc imports
 from model_utils.utils import extract_subset_fea
@@ -67,7 +67,7 @@ model_train_params = [
     },
 ]
 
-# [Req] Combine the two lists (the combined parameter list will be passed to
+# Combine the two lists (the combined parameter list will be passed to
 # frm.initialize_parameters() in the main().
 train_params = app_train_params + model_train_params
 # req_train_params = ["model_outdir", "train_ml_data_dir", "val_ml_data_dir"]
@@ -93,7 +93,8 @@ def run(params: Dict):
     # ------------------------------------------------------
     # [Req] Create output dir and build model path
     # ------------------------------------------------------
-    # Create output dir for trained model, val set predictions, val set performance scores
+    # Create output dir for trained model, val set predictions, val set
+    # performance scores
     frm.create_outdir(outdir=params["model_outdir"])
 
     # Build model path
@@ -129,15 +130,15 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Prepare, train, and save model
     # ------------------------------------------------------
-    # Prepare model
+    # Prepare model and train settings
     ml_init_args = {'n_estimators': 1000, 'max_depth': -1,
                     'learning_rate': params["learning_rate"],
                     'num_leaves': 31, 'n_jobs': 8, 'random_state': None}
-    ml_fit_args = {'verbose': False, 'early_stopping_rounds': 50}
-    ml_fit_args['eval_set'] = (xvl, yvl)
     model = lgb.LGBMRegressor(objective='regression', **ml_init_args)
 
     # Train model
+    ml_fit_args = {'verbose': False, 'early_stopping_rounds': 50}
+    ml_fit_args['eval_set'] = (xvl, yvl)
     model.fit(xtr, ytr, **ml_fit_args)
 
     # Save model
@@ -147,6 +148,7 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Load best model and compute predictions
     # ------------------------------------------------------
+    # Load the best saved model (as determined based on val data)
     model = lgb.Booster(model_file=str(modelpath))
 
     # Compute predictions
