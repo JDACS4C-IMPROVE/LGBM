@@ -70,7 +70,6 @@ model_train_params = [
 # Combine the two lists (the combined parameter list will be passed to
 # frm.initialize_parameters() in the main().
 train_params = app_train_params + model_train_params
-# req_train_params = ["model_outdir", "train_ml_data_dir", "val_ml_data_dir"]
 # ---------------------
 
 # [Req] List of metrics names to compute prediction performance scores
