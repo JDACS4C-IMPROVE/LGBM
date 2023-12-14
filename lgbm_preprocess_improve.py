@@ -286,8 +286,8 @@ def main(args):
     params = frm.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
-        # default_model="lgbm_params_ws.txt",
-        # default_model="lgbm_params_cs.txt",
+        # default_model="params_ws.txt",
+        # default_model="params_cs.txt",
         additional_definitions=additional_definitions,
         required=None,
     )
