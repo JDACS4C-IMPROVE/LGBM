@@ -10,8 +10,6 @@ import pandas as pd
 
 # IMPROVE imports
 from improve import framework as frm
-# import improve_utils
-# from improve_utils import improve_globals as ig
 
 # LightGBM imports
 # TODO: change this for your model
@@ -42,8 +40,6 @@ class Timer:
 
 fdir = Path(__file__).resolve().parent
 
-y_col_name = "auc"
-# y_col_name = "auc1"
 maindir = Path(f"./{y_col_name}")
 MAIN_ML_DATA_DIR = Path(f"./{maindir}/ml_data")
 MAIN_MODEL_DIR = Path(f"./{maindir}/models")
@@ -96,6 +92,9 @@ target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
 only_cross_study = False
 # only_cross_study = True
 
+y_col_name = "auc"
+# y_col_name = "auc1"
+
 ## Splits
 split_nums = []  # all splits
 # split_nums = [0]
@@ -139,7 +138,6 @@ for source_data_name in source_datasets:
     # --------------------
     # Preprocess and Train
     # --------------------
-    # import pdb; pdb.set_trace()
     for split in split_nums:
         print_fn(f"Split id {split} out of {len(split_nums)} splits.")
         # Check that train, val, and test are available. Otherwise, continue to the next split.
@@ -153,14 +151,12 @@ for source_data_name in source_datasets:
                 warnings.warn(f"\nThe {phase} split file {fname} is missing (continue to next split)")
                 continue
 
-        # import pdb; pdb.set_trace()
         for target_data_name in target_datasets:
             if only_cross_study and (source_data_name == target_data_name):
                 continue # only cross-study
             print_fn(f"\nSource data: {source_data_name}")
             print_fn(f"Target data: {target_data_name}")
 
-            # EXP_ML_DATA_DIR = ig.ml_data_dir/f"{source_data_name}-{target_data_name}"/f"split_{split}"
             ml_data_outdir = MAIN_ML_DATA_DIR/f"{source_data_name}-{target_data_name}"/f"split_{split}"
 
             if source_data_name == target_data_name:
@@ -172,7 +168,6 @@ for source_data_name in source_datasets:
 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # p1 (none): Preprocess train data
-            # import pdb; pdb.set_trace()
             # train_split_files = list((ig.splits_dir).glob(f"{source_data_name}_split_0_train*.txt"))  # TODO: placeholder for lc analysis
             timer_preprocess = Timer()
             # ml_data_path = graphdrp_preprocess_improve.main([
@@ -185,12 +180,10 @@ for source_data_name in source_datasets:
             print_fn("\nPreprocessing")
             train_split_file = f"{source_data_name}_split_{split}_train.txt"
             val_split_file = f"{source_data_name}_split_{split}_val.txt"
-            # test_split_file = f"{source_data_name}_split_{split}_test.txt"
             print_fn(f"train_split_file: {train_split_file}")
             print_fn(f"val_split_file:   {val_split_file}")
             print_fn(f"test_split_file:  {test_split_file}")
             print_fn(f"ml_data_outdir:   {ml_data_outdir}")
-            # import pdb; pdb.set_trace()
             preprocess_run = ["python",
                   "lgbm_preprocess_improve.py",
                   "--train_split_file", str(train_split_file),
@@ -208,7 +201,6 @@ for source_data_name in source_datasets:
             # p2 (p1): Train model
             # Train a single model for a given [source, split] pair
             # Train using train samples and early stop using val samples
-            # import pdb; pdb.set_trace()
             model_outdir = MAIN_MODEL_DIR/f"{source_data_name}"/f"split_{split}"
             if model_outdir.exists() is False:
                 train_ml_data_dir = ml_data_outdir
@@ -242,7 +234,6 @@ for source_data_name in source_datasets:
 
             # Infer
             # p3 (p1, p2): Inference
-            # import pdb; pdb.set_trace()
             test_ml_data_dir = ml_data_outdir
             model_dir = model_outdir
             infer_outdir = MAIN_INFER_OUTDIR/f"{source_data_name}-{target_data_name}"/f"split_{split}"
@@ -255,9 +246,7 @@ for source_data_name in source_datasets:
             # ])
             print_fn("\nInfer")
             print_fn(f"test_ml_data_dir: {test_ml_data_dir}")
-            print_fn(f"val_ml_data_dir:  {val_ml_data_dir}")
             print_fn(f"infer_outdir:     {infer_outdir}")
-            # import pdb; pdb.set_trace()
             infer_run = ["python",
                   "lgbm_infer_improve.py",
                   "--test_ml_data_dir", str(test_ml_data_dir),
