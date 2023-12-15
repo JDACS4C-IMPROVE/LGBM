@@ -2,7 +2,7 @@ This repo demonstrates the use of [improve](https://github.com/JDACS4C-IMPROVE/I
 
 # Dependencies
 Check `conda_env.sh`
-+ [Candle-lib](https://github.com/ECP-CANDLE/candle_lib) -- improve lib dependency
++ [candle-lib](https://github.com/ECP-CANDLE/candle_lib) -- improve lib dependency
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) -- ML model
 + [Pyarrow](https://anaconda.org/conda-forge/pyarrow) -- allows to save/load parquet files
 
@@ -50,27 +50,32 @@ csa_data/raw_data/
 
 # Step-by-step running
 
-## 1. Set the required computational environment
-* Download benchmark data
+### 1. Clone the repo
+```
+git clone https://github.com/JDACS4C-IMPROVE/LGBM/tree/master
+cd LGBM
+```
+
+### 2. Download benchmark data
 ```
 sh ./download_csa.sh
 ```
-* Install dependencies (check `conda_env.sh`)
-* Set the required environment variables to point towards the data folder and improve lib.
-Follow this repo to set up the env variables for `IMPROVE_DATA_DIR` and improve lib.
-https://github.com/JDACS4C-IMPROVE/IMPROVE
 
-## 2. Preprocess raw benchmark data to construct model input data
+### 3. Set computational environment
+* Install dependencies (check `conda_env.sh`)
+* Set the required environment variables to point towards the data folder and improve lib. You need to download the improve lib repo (follow this repo for more info `https://github.com/JDACS4C-IMPROVE/IMPROVE`).
+```bash
+export IMPROVE_DATA_DIR="./csa_data/"
+export PYTHONPATH=$PYTHONPATH:/lambda_stor/data/apartin/projects/IMPROVE/pan-models/IMPROVE
+```
+
+### 4. Preprocess benchmark data (_raw data_) to construct model input data (_ML data_)
 ```bash
 python lgbm_preprocess_improve.py
 ```
-or 
-```bash
-sh preprocess_example.sh
-```
-This generates:
-* three model input data files: `train_data.parquet`, `val_data.parquet`, `infer_data.parquet`
-* three data files, each containing y data (responses) and metadata: `train_y_data.csv`, `val_y_data.csv`, `infer_y_data.csv`
+Generates:
+* three model input data files: `train_data.parquet`, `val_data.parquet`, `test_data.parquet`
+* three data files, each containing y data (responses) and metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
 
 ```
 ml_data
@@ -86,16 +91,15 @@ ml_data
         └── x_data_mordred_scaler.gz
 ```
 
-## 3. Train the LightGBM model
+### 5. Train LightGBM model
 ```bash
 python lgbm_train_improve.py
 ```
+Trains LightGBM using the processed data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
 
-This trains LightGBM using the processed data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
-
-This generates:
+Generates:
 * trained model: `model.txt`
-* predictions on val data: `val_y_data_predicted.csv`
+* predictions on val data (tabular data): `val_y_data_predicted.csv`
 * prediction performance scores on val data: `val_scores.json`
 ```
 out_models
@@ -106,13 +110,12 @@ out_models
         └── val_y_data_predicted.csv
 ```
 
-## 4. Run the trained model in inference on test data
+### 6. Run the trained model in inference mode on test data
 ```python lgbm_infer_improve.py```
+This script uses processed data and the trained model to evaluate performance.
 
-The script uses processed data and the trained model to evaluate performance.
-
-This generates:
-* predictions on test data: `test_y_data_predicted.csv`
+Generates:
+* predictions on test data (tabular data): `test_y_data_predicted.csv`
 * prediction performance scores on test data: `test_scores.json`
 ```
 out_infer
