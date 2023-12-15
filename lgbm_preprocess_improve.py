@@ -113,7 +113,6 @@ model_preproc_params = [
 # Combine the two lists (the combined parameter list will be passed to
 # frm.initialize_parameters() in the main().
 preprocess_params = app_preproc_params + model_preproc_params
-# req_preprocess_params = []
 # ---------------------
 
 

@@ -19,12 +19,10 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
-
 import lightgbm as lgb
 
 # [Req] IMPROVE/CANDLE imports
 from improve import framework as frm
-from improve.metrics import compute_metrics
 
 # Model-specifc imports
 from model_utils.utils import extract_subset_fea
@@ -58,7 +56,6 @@ model_infer_params = []
 # [Req] Combine the two lists (the combined parameter list will be passed to
 # frm.initialize_parameters() in the main().
 infer_params = app_infer_params + model_infer_params
-# req_infer_params = []
 # ---------------------
 
 

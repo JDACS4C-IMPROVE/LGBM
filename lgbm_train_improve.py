@@ -26,12 +26,10 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
-
 import lightgbm as lgb
 
 # [Req] IMPROVE/CANDLE imports
 from improve import framework as frm
-# from improve.metrics import compute_metrics
 
 # Model-specifc imports
 from model_utils.utils import extract_subset_fea
