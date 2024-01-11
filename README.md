@@ -52,7 +52,7 @@ csa_data/raw_data/
 
 ### 1. Clone the repo
 ```
-git clone https://github.com/JDACS4C-IMPROVE/LGBM/tree/master
+git clone https://github.com/JDACS4C-IMPROVE/LGBM/tree/develop
 cd LGBM
 ```
 
