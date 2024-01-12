@@ -52,8 +52,9 @@ csa_data/raw_data/
 
 ### 1. Clone the repo
 ```
-git clone https://github.com/JDACS4C-IMPROVE/LGBM/tree/develop
+git clone https://github.com/JDACS4C-IMPROVE/LGBM
 cd LGBM
+git checkout develop
 ```
 
 ### 2. Download benchmark data
