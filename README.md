@@ -67,7 +67,7 @@ sh ./download_csa.sh
 
 ### 3. Set up the environment
 
-* Install dependencies.
+Install dependencies:
 ```bash
 conda create -n lgbm_py37 python=3.7 pip lightgbm=3.1.1 --yes
 conda activate lgbm_py37
@@ -75,14 +75,14 @@ pip install pyarrow==12.0.1
 pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```
 
-* Clone the IMPROVE library (outside of the LGBM folder).
+Clone the IMPROVE library (outside of the LGBM folder):
 ```bash
 cd ..
 git clone https://github.com/JDACS4C-IMPROVE/IMPROVE
 git checkout develop
 ```
 
-* Set the required environment variables to point towards the location of the data folder and IMPROVE library.
+Set the required environment variables to point towards the location of the data folder and IMPROVE library:
 ```bash
 cd LGBM
 export IMPROVE_DATA_DIR="./csa_data/"
