@@ -79,14 +79,17 @@ Clone the IMPROVE library (outside of the LGBM folder):
 ```bash
 cd ..
 git clone https://github.com/JDACS4C-IMPROVE/IMPROVE
+cd IMPROVE
 git checkout develop
+export MY_PATH_TO_IMPROVE=`pwd`
+cd ..
 ```
 
 Set the required environment variables to point towards the location of the data folder and IMPROVE library:
 ```bash
 cd LGBM
 export IMPROVE_DATA_DIR="./csa_data/"
-export PYTHONPATH=$PYTHONPATH::/your/path/to/IMPROVE
+export PYTHONPATH=$PYTHONPATH::${MY_PATH_TO_IMPROVE}
 ```
 
 ### 4. Preprocess CSA data (_raw data_) to construct model input data (_ML data_)
