@@ -18,4 +18,5 @@ RUN pip install lightgbm==3.1.1
 
 COPY . /usr/local/LGBM/
 RUN cp /usr/local/LGBM/*.sh /usr/local/bin
+RUN chmod a+x /usr/local/bin/*
 # RUN chmod a+x /usr/local/bin/infer.sh /usr/local/bin/train.sh /usr/local/bin/preprocess.sh
