@@ -1,4 +1,4 @@
-"""  Preprocess benchmark data (e.g., CSA data) to generate datasets for the
+""" Preprocess benchmark data (e.g., CSA data) to generate datasets for the
 LightGBM prediction model.
 
 Required outputs
@@ -110,10 +110,9 @@ model_preproc_params = [
     },
 ]
 
-# [Req] Combine the two lists (the combined parameter list will be passed to
+# Combine the two lists (the combined parameter list will be passed to
 # frm.initialize_parameters() in the main().
 preprocess_params = app_preproc_params + model_preproc_params
-# req_preprocess_params = []
 # ---------------------
 
 
@@ -170,7 +169,7 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Gene selection (based on LINCS landmark genes)
     if params["use_lincs"]:
-        genes_fpath = filepath/"landmark_genes"
+        genes_fpath = filepath/"model_utils/landmark_genes.txt"
         ge = gene_selection(ge, genes_fpath, canc_col_name=params["canc_col_name"])
 
     # Prefix gene column names with "ge."
@@ -253,7 +252,7 @@ def run(params: Dict):
 
         # --------------------------------
         # [Req] Save ML data files in params["ml_data_outdir"]
-        # The implementation of this step, depends on the model.
+        # The implementation of this step depends on the model.
         # --------------------------------
         # [Req] Build data name
         data_fname = frm.build_ml_data_name(params, stage)
@@ -286,10 +285,9 @@ def main(args):
     params = frm.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
-        # default_model="lgbm_params_ws.txt",
-        # default_model="lgbm_params_cs.txt",
+        # default_model="params_ws.txt",
+        # default_model="params_cs.txt",
         additional_definitions=additional_definitions,
-        # required=req_preprocess_params,
         required=None,
     )
     ml_data_outdir = run(params)

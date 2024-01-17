@@ -1,11 +1,16 @@
 from pathlib import Path
+from time import time
 from typing import Dict, List, Union
 
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MaxAbsScaler, MinMaxScaler, RobustScaler
+from sklearn.preprocessing import (
+    StandardScaler, MaxAbsScaler, MinMaxScaler, RobustScaler
+)
 
 
-def gene_selection(df: pd.DataFrame, genes_fpath: Union[Path, str], canc_col_name: str):
+def gene_selection(df: pd.DataFrame,
+                   genes_fpath: Union[Path, str],
+                   canc_col_name: str):
     """ Takes a dataframe omics data (e.g., gene expression) and retains only
     the genes specified in genes_fpath.
     """
@@ -19,7 +24,10 @@ def gene_selection(df: pd.DataFrame, genes_fpath: Union[Path, str], canc_col_nam
     return df[cols]
 
 
-def scale_df(df: pd.DataFrame, scaler_name: str="std", scaler=None, verbose: bool=False):
+def scale_df(df: pd.DataFrame,
+             scaler_name: str="std",
+             scaler=None,
+             verbose: bool=False):
     """ Returns a dataframe with scaled data.
 
     It can create a new scaler or use the scaler passed or return the
@@ -85,8 +93,6 @@ def extract_subset_fea(df, fea_list: List, fea_sep: str='_'):
 def get_print_func(logger=None):
     """ Returns the python 'print' function if logger is None. Othersiwe, returns logger.info. """
     return print if logger is None else logger.info
-
-
 
 
 class Timer:
