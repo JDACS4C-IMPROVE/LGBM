@@ -16,11 +16,12 @@ CANDLE_MODEL_SCRIPT=lgbm_preprocess_improve.py
 IMPROVE_MODEL_DIR=${IMPROVE_MODEL_DIR:-$( dirname -- "$0" )}
 
 # Combine path and name and check if executable exists
-CANDLE_MODEL=${IMPROVE_MODEL_DIR}/${CANDLE_MODEL}
+CANDLE_MODEL=${IMPROVE_MODEL_DIR}/${CANDLE_MODEL_SCRIPT}
 if [ ! -f ${CANDLE_MODEL} ] ; then
 	echo No such file ${CANDLE_MODEL}
 	exit 404
 fi
+
 
 
 if [ $# -lt 2 ] ; then
@@ -29,7 +30,10 @@ if [ $# -lt 2 ] ; then
         exit -1
 fi
 
+
+
 if [ $# -eq 2 ] ; then
+      
         CANDLE_DATA_DIR=$1 ; shift
         
 	# if $2 is a file, then set candle_config
@@ -38,10 +42,10 @@ if [ $# -eq 2 ] ; then
         	CMD="python ${CANDLE_MODEL} --config_file ${CONFIG_FILE}"
 	else
  		CMD="python ${CANDLE_MODEL} $@"
-   
-        echo "CMD = $CMD"
+                echo CMD=\"$CMD\"
+        fi
 
-elif [ $# -ge 3 ] ; then
+elif [ $# -ge 3 ] ; then 
 
         CANDLE_DATA_DIR=$1 ; shift
 
@@ -69,5 +73,5 @@ echo "running command ${CMD}"
 # Set up environmental variables and execute model
 # source /opt/conda/bin/activate /usr/local/conda_envs/Paccmann_MCA
 
-CANDLE_DATA_DIR=${CANDLE_DATA_DIR} $CMD
+IMPROVE_DATA_DIR=${CANDLE_DATA_DIR} CANDLE_DATA_DIR=${CANDLE_DATA_DIR} $CMD
 
