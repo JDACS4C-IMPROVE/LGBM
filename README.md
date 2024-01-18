@@ -66,6 +66,7 @@ git checkout develop
 ```
 sh ./download_csa.sh
 ```
+This will download the cross-study analysis benchmark data into `./csa_data/`.
 
 ### 3. Set up the environment
 
