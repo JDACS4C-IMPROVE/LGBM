@@ -1,20 +1,22 @@
+# LGBM
+
 This repository demonstrates the use of the [IMPROVE library](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
 A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/docs/content/unified_interface.html). 
 
-# Dependencies
+## Dependencies
 + [candle-lib](https://github.com/ECP-CANDLE/candle_lib) -- enables various hyperparameter optimization (HPO) schemes and automatically distributes the workload across available computing resources
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) -- machine learning model
 + [pyarrow](https://anaconda.org/conda-forge/pyarrow) -- saves and loads parquet files
 + [IMPROVE](https://github.com/JDACS4C-IMPROVE/IMPROVE) -- scripts specific for the IMPROVE project 
 
-# Source codes
+## Source codes
 + `lgbm_preprocess_improve.py`: creates data files for the DRP model
 + `lgbm_train_improve.py`: trains a DRP model using LightGBM
 + `lgbm_infer_improve.py`: runs inference with the trained LightGBM model
 + `lgbm_params.txt`: parameter file
 
-# Dataset
+## Dataset
 Benchmark data for CSA can be downloaded from this [site](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
 The required data tree is shown below:
@@ -51,7 +53,7 @@ csa_data/raw_data/
     └── response.tsv
 ```
 
-# Step-by-step running
+## Step-by-step running
 
 ### 1. Clone the repository
 ```
