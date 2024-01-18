@@ -5,10 +5,10 @@ This repository demonstrates the use of the [IMPROVE library](https://github.com
 A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/docs/content/unified_interface.html). 
 
 ## Dependencies
-+ [candle-lib](https://github.com/ECP-CANDLE/candle_lib) -- enables various hyperparameter optimization (HPO) schemes and automatically distributes the workload across available computing resources
-+ [LightGBM](https://lightgbm.readthedocs.io/en/stable/) -- machine learning model
-+ [pyarrow](https://anaconda.org/conda-forge/pyarrow) -- saves and loads parquet files
-+ [IMPROVE](https://github.com/JDACS4C-IMPROVE/IMPROVE) -- contains scripts specific for the IMPROVE project 
++ [candle-lib](https://github.com/ECP-CANDLE/candle_lib) - enables various hyperparameter optimization (HPO) schemes and automatically distributes the workload across available computing resources
++ [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning model
++ [pyarrow](https://anaconda.org/conda-forge/pyarrow) - saves and loads parquet files
++ [IMPROVE](https://github.com/JDACS4C-IMPROVE/IMPROVE) - contains scripts specific for the IMPROVE project 
 
 ## Source codes
 + `lgbm_preprocess_improve.py`: creates data files for the DRP model
