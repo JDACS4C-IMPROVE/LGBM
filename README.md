@@ -1,6 +1,6 @@
 # LGBM
 
-This repository demonstrates the use of the [`IMPROVE library`](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM (LGBM) and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
+This repository demonstrates the use of the [IMPROVE library](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM (LGBM) and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
 A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/docs/content/unified_interface.html). 
 
