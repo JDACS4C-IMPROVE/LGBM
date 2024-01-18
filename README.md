@@ -91,7 +91,7 @@ Set the required environment variables to point towards the location of the data
 ```bash
 cd LGBM
 export IMPROVE_DATA_DIR="./csa_data/"
-export PYTHONPATH=$PYTHONPATH::${MY_PATH_TO_IMPROVE}
+export PYTHONPATH=$PYTHONPATH:${MY_PATH_TO_IMPROVE}
 ```
 
 ### 4. Preprocess CSA data (_raw data_) to construct model input data (_ML data_)
