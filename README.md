@@ -1,6 +1,6 @@
 # LGBM
 
-This repository demonstrates the use of the [IMPROVE library](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM (LGBM) and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
+This repository demonstrates the use of the [`IMPROVE library`](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM (LGBM) and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
 A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/docs/content/unified_interface.html). 
 
@@ -77,7 +77,7 @@ pip install pyarrow==12.0.1
 pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```
 
-Clone the IMPROVE library (outside of the LGBM folder):
+Clone the `IMPROVE library` (outside of the LGBM folder):
 ```bash
 cd ..
 git clone https://github.com/JDACS4C-IMPROVE/IMPROVE
@@ -87,7 +87,7 @@ export MY_PATH_TO_IMPROVE=`pwd`
 cd ..
 ```
 
-Set the required environment variables to point towards the location of the data folder and IMPROVE library:
+Set the required environment variables to point towards the location of the data folder and `IMPROVE library`:
 ```bash
 cd LGBM
 export IMPROVE_DATA_DIR="./csa_data/"
