@@ -140,7 +140,9 @@ out_models
 ```
 
 ### 6. Run inference on test data with trained LightGBM model
-```python lgbm_infer_improve.py```
+```bash
+python lgbm_infer_improve.py
+```
 
 Evaluates the performance of a test dataset with the trained model.
 
