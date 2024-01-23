@@ -34,8 +34,14 @@ fi
 if [ $# -eq 2 ] ; then
         CUDA_VISIBLE_DEVICES=$1 ; shift
         CANDLE_DATA_DIR=$1 ; shift
-        CMD="python ${CANDLE_MODEL}"
-        echo "CMD = $CMD"
+        if [ -d $CANDLE_DATA_DIR ]; then
+                CMD="python ${CANDLE_MODEL}"
+                echo "CMD = $CMD"
+        else
+                echo Wrong path for CANDLE_DATA_DIR
+                echo Not a directory: $CANDLE_DATA_DIR
+                exit -1
+        fi
 
 elif [ $# -ge 3 ] ; then
         CUDA_VISIBLE_DEVICES=$1 ; shift
@@ -65,5 +71,5 @@ echo "running command ${CMD}"
 
 # Set up environmental variables and execute model
 # source /opt/conda/bin/activate /usr/local/conda_envs/Paccmann_MCA
-CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES} CANDLE_DATA_DIR=${CANDLE_DATA_DIR} $CMD
+CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES} IMPROVE_DATA_DIR=${CANDLE_DATA_DIR}  $CMD
 
