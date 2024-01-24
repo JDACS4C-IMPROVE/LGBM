@@ -7,7 +7,7 @@
 
 
 # Download the benchmark CSA data
-wget --cut-dirs=8 -P ./ -nH -np -m https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/
+# wget --cut-dirs=8 -P ./ -nH -np -m https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/
 
 
 # ----------------------------------------
@@ -43,6 +43,9 @@ wget --cut-dirs=8 -P ./ -nH -np -m https://web.cels.anl.gov/projects/IMPROVE_FTP
 
 # Preprocess
 # All preprocess outputs are saved in params["ml_data_outdir"]
+
+export IMPROVE_DATA_DIR=`pwd`/csa_data/
+
 python lgbm_preprocess_improve.py \
     --train_split_file GDSCv1_split_0_train.txt \
     --val_split_file GDSCv1_split_0_val.txt \
