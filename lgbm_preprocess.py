@@ -20,21 +20,30 @@ All the outputs from this preprocessing script are saved in params["ml_data_outd
 """
 
 import sys
+import os
 from pathlib import Path
 from typing import Dict
+import logging
 
 import pandas as pd
 import joblib
 
 # [Req] IMPROVE/CANDLE imports
-from improve import framework as frm
+from improve import framework as frm 
 from improve import drug_resp_pred as drp
 
 from improve import config as BaseConfig
 from improve import preprocess as BasePreprocess
+from improve.Benchmarks.DrugResponsePrediction import DRP as BenchmanrkDRP
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
+
+FORMAT = '%(levelname)s %(name)s %(asctime)s:\t%(message)s'
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("IMPROVE_LOG_LEVEL" , logging.DEBUG))
+
 
 filepath = Path(__file__).resolve().parent # [Req]
 
@@ -115,7 +124,8 @@ model_preproc_params = [
 
 # Combine the two lists (the combined parameter list will be passed to
 # frm.initialize_parameters() in the main().
-preprocess_params = app_preproc_params + model_preproc_params
+# preprocess_params = app_preproc_params + model_preproc_params
+preprocess_params = model_preproc_params
 # ---------------------
 
 
@@ -136,7 +146,27 @@ def run(cfg, params: Dict):
     # [Req] Build paths and create output dir
     # ------------------------------------------------------
     # Build paths for raw_data, x_data, y_data, splits
-    params = frm.build_paths(params)  
+    print("\nChecking Parser.")
+    try:
+        if cfg.get_param("subparser_name") is None:
+            logger.error("Subparser name is not set.")
+        else:
+            logger.info(f"Subparser name: {cfg.get_param('subparser_name')}")
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        sys.exit(1)
+
+    print("\nBuild paths and create output dir.")
+    logger.debug("Build paths and create output dir.")
+
+    DRP = BenchmanrkDRP()
+    DRP.set_input_dir(cfg.get_param("input_dir"))
+    DRP.set_output_dir(cfg.get_param("output_dir"))
+    DRP.check_input_paths()
+    DRP.check_output_dir()
+
+    print(DRP.__dict__)
+    # params = frm.build_paths(params)  
 
     # Create output dir for model input data (to save preprocessed ML data)
     frm.create_outdir(outdir=params["ml_data_outdir"])
@@ -289,8 +319,10 @@ def main(args):
     additional_definitions = preprocess_params
 
     # Initialize Config and CLI
+    logger.info("Initialize Config and CLI.")
     pp = BasePreprocess.Preprocess()
 
+    logger.debug("Initialize parameters.")
     params = pp.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
@@ -299,8 +331,11 @@ def main(args):
         additional_definitions=additional_definitions,
         required=None,
     )
+
+    logger.info("Run data preprocessing.")
     ml_data_outdir = run(pp,params)
-    print("\nFinished data preprocessing.")
+    logger.info(f"Preprocessed ML data is saved in {output_dir}")
+
 
 
 # [Req]
