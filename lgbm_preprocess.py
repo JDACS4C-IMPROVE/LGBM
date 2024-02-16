@@ -33,7 +33,7 @@ from improve import framework as frm
 from improve import drug_resp_pred as drp
 
 from improve import config as BaseConfig
-from improve import preprocess as BasePreprocess
+from improve import preprocess as PreprocessConfig
 from improve.Benchmarks.DrugResponsePrediction import DRP as BenchmanrkDRP
 
 # Model-specifc imports
@@ -130,7 +130,7 @@ preprocess_params = model_preproc_params
 
 
 # [Req]
-def run(cfg, params: Dict):
+def run(cfg: PreprocessConfig.Preprocess):
     """ Run data preprocessing.
 
     Args:
@@ -146,30 +146,41 @@ def run(cfg, params: Dict):
     # [Req] Build paths and create output dir
     # ------------------------------------------------------
     # Build paths for raw_data, x_data, y_data, splits
-    print("\nChecking Parser.")
+  
     try:
-        if cfg.get_param("subparser_name") is None:
+        if cfg.get_param("subparser_name") is None or cfg.get_param("subparser_name") == "":
             logger.error("Subparser name is not set.")
+            # throw error
+            raise ValueError("Missing mandatory positional parameter: subparser_name.")
         else:
             logger.info(f"Subparser name: {cfg.get_param('subparser_name')}")
     except Exception as e:
         logger.error(f"Error: {e}")
         sys.exit(1)
 
-    print("\nBuild paths and create output dir.")
+    
     logger.debug("Build paths and create output dir.")
 
-    DRP = BenchmanrkDRP()
-    DRP.set_input_dir(cfg.get_param("input_dir"))
-    DRP.set_output_dir(cfg.get_param("output_dir"))
-    DRP.check_input_paths()
-    DRP.check_output_dir()
+    # if subparser_name is benchmark, then use the BenchmarkDRP class
+    # to load the data
+    if cfg.get_param("subparser_name") == "benchmark":
+        DRP = BenchmanrkDRP()
+        DRP.init(cfg)
+        DRP.set_input_dir(cfg.get_param("input_dir"))
+        DRP.set_output_dir(cfg.get_param("output_dir"))
+         # Check all paths and directories are valid and exist
+        DRP.check_input_paths()
+        # Create output dir for model input data (to save preprocessed ML data)
+        DRP.check_output_dir()
 
-    print(DRP.__dict__)
-    # params = frm.build_paths(params)  
+        print(DRP.__dict__)
+    else:
+        raise ValueError("Not implemented.")
+   
+ 
 
-    # Create output dir for model input data (to save preprocessed ML data)
-    frm.create_outdir(outdir=params["ml_data_outdir"])
+    
+    # frm.create_outdir(outdir=params["ml_data_outdir"])
 
     # ------------------------------------------------------
     # [Req] Load X data (feature representations)
@@ -187,7 +198,23 @@ def run(cfg, params: Dict):
     # data, then the model must use the provided data loaders to load the data files
     # from the x_data dir.
     print("\nLoads omics data.")
+
+    logger.debug(f"x_data_canc_files: {cfg.get_param('x_data_canc_files')}")
+    logger.debug(f"x_data_canc_files: {cfg.dict()['x_data_canc_files']}")
+
+    params = cfg.dict()
+    params['x_data_path'] = DRP.x_data_path
+    params['y_data_path'] = DRP.y_data_path
+    params['splits_path'] = DRP.splits_path
+
+    logger.debug("Loading from Alex's code")
     omics_obj = drp.OmicsLoader(params)
+
+    logger.debug("Loading from DRP class")
+    DRP.load_data(verbose=True)
+
+    sys.exit()
+
     # print(omics_obj)
     ge = omics_obj.dfs['cancer_gene_expression.tsv'] # return gene expression
 
@@ -320,20 +347,22 @@ def main(args):
 
     # Initialize Config and CLI
     logger.info("Initialize Config and CLI.")
-    pp = BasePreprocess.Preprocess()
+    preprocess_config = PreprocessConfig.Preprocess()
 
     logger.debug("Initialize parameters.")
-    params = pp.initialize_parameters(
+    params = preprocess_config.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
+        default_config="lgbm.cfg",
         # default_model="params_ws.txt",
         # default_model="params_cs.txt",
         additional_definitions=additional_definitions,
         required=None,
     )
 
+
     logger.info("Run data preprocessing.")
-    ml_data_outdir = run(pp,params)
+    ml_data_outdir = run(preprocess_config)
     logger.info(f"Preprocessed ML data is saved in {output_dir}")
 
 
