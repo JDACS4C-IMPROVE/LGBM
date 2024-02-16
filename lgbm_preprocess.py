@@ -158,7 +158,9 @@ def run(cfg: PreprocessConfig.Preprocess):
         logger.error(f"Error: {e}")
         sys.exit(1)
 
-    
+ 
+
+
     logger.debug("Build paths and create output dir.")
 
     # if subparser_name is benchmark, then use the BenchmarkDRP class
@@ -173,7 +175,7 @@ def run(cfg: PreprocessConfig.Preprocess):
         # Create output dir for model input data (to save preprocessed ML data)
         DRP.check_output_dir()
 
-        print(DRP.__dict__)
+        # print(DRP.__dict__)
     else:
         raise ValueError("Not implemented.")
    
@@ -207,21 +209,21 @@ def run(cfg: PreprocessConfig.Preprocess):
     params['y_data_path'] = DRP.y_data_path
     params['splits_path'] = DRP.splits_path
 
-    logger.debug("Loading from Alex's code")
-    omics_obj = drp.OmicsLoader(params)
+    # logger.debug("Loading from Alex's code")
+    # omics_obj = drp.OmicsLoader(params)
 
     logger.debug("Loading from DRP class")
     DRP.load_data(verbose=True)
 
-    sys.exit()
+
 
     # print(omics_obj)
-    ge = omics_obj.dfs['cancer_gene_expression.tsv'] # return gene expression
+    ge = DRP.omics.dfs['cancer_gene_expression.tsv'] # return gene expression
 
-    print("\nLoad drugs data.")
-    drugs_obj = drp.DrugsLoader(params)
+    # print("\nLoad drugs data.")
+    # drugs_obj = drp.DrugsLoader(params)
     # print(drugs_obj)
-    md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
+    md = DRP.drugs.dfs['drug_mordred.tsv'] # return the Mordred descriptors
     md = md.reset_index()  # TODO. implement reset_index() inside the loader
 
     # ------------------------------------------------------
@@ -241,14 +243,14 @@ def run(cfg: PreprocessConfig.Preprocess):
     # Create feature scaler
     # ------------------------------------------------------
     # Load and combine responses
-    print("Create feature scaler.")
-    rsp_tr = drp.DrugResponseLoader(params,
-                                    split_file=params["train_split_file"],
-                                    verbose=False).dfs["response.tsv"]
-    rsp_vl = drp.DrugResponseLoader(params,
-                                    split_file=params["val_split_file"],
-                                    verbose=False).dfs["response.tsv"]
-    rsp = pd.concat([rsp_tr, rsp_vl], axis=0)
+    logger.info("Create feature scaler.")
+    # rsp_tr = drp.DrugResponseLoader(params,
+    #                                 split_file=params["train_split_file"],
+    #                                 verbose=False).dfs["response.tsv"]
+    # rsp_vl = drp.DrugResponseLoader(params,
+    #                                 split_file=params["val_split_file"],
+    #                                 verbose=False).dfs["response.tsv"]
+    rsp = pd.concat([DRP.train, DRP.validate], axis=0)
 
     # Retian feature rows that are present in the y data (response dataframe)
     # Intersection of omics features, drug features, and responses
@@ -259,17 +261,17 @@ def run(cfg: PreprocessConfig.Preprocess):
 
     # Scale gene expression
     _, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
+    ge_scaler_fpath = Path(params['output_dir']) / params["ge_scaler_fname"]
     joblib.dump(ge_scaler, ge_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
 
     # Scale Mordred descriptors
     _, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
-    md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
+    md_scaler_fpath = Path(params["output_dir"]) / params["md_scaler_fname"]
     joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
 
-    del rsp, rsp_tr, rsp_vl, ge_sub, md_sub
+    del rsp, ge_sub, md_sub
 
     # ------------------------------------------------------
     # [Req] Construct ML data for every stage (train, val, test)
@@ -280,17 +282,21 @@ def run(cfg: PreprocessConfig.Preprocess):
 
     # Dict with split files corresponding to the three sets (train, val, and test)
     stages = {"train": params["train_split_file"],
-              "val": params["val_split_file"],
+              "validate": params["val_split_file"],
               "test": params["test_split_file"]}
 
     for stage, split_file in stages.items():
 
+        logger.debug(f"Stage: {stage}, Split file: {split_file}")
         # --------------------------------
         # [Req] Load response data
         # --------------------------------
-        rsp = drp.DrugResponseLoader(params,
-                                     split_file=split_file,
-                                     verbose=False).dfs["response.tsv"]
+        # rsp = drp.DrugResponseLoader(params,
+        #                              split_file=split_file,
+        #                              verbose=False).dfs["response.tsv"]
+
+        rsp =getattr(DRP, stage , None)
+        print(rsp)
 
         # --------------------------------
         # Data prep
@@ -324,7 +330,7 @@ def run(cfg: PreprocessConfig.Preprocess):
 
         print("Save data")
         data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
-        data.to_parquet(Path(params["ml_data_outdir"])/data_fname) # saves ML data file to parquet
+        data.to_parquet(Path(params["output_dir"])/data_fname) # saves ML data file to parquet
 
         # Prepare the y dataframe for the current stage
         fea_list = ["ge", "mordred"]
@@ -335,7 +341,7 @@ def run(cfg: PreprocessConfig.Preprocess):
         # [Req] Save y dataframe for the current stage
         frm.save_stage_ydf(ydf, params, stage)
 
-    return params["ml_data_outdir"]
+    return params["output_dir"]
 
 
 # [Req]
@@ -363,7 +369,7 @@ def main(args):
 
     logger.info("Run data preprocessing.")
     ml_data_outdir = run(preprocess_config)
-    logger.info(f"Preprocessed ML data is saved in {output_dir}")
+    logger.info(f"Preprocessed ML data is saved in {preprocess_config.output_dir}")
 
 
 
