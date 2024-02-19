@@ -158,29 +158,6 @@ def run(cfg: PreprocessConfig.Preprocess):
         logger.error(f"Error: {e}")
         sys.exit(1)
 
- 
-
-
-    logger.debug("Build paths and create output dir.")
-
-    # if subparser_name is benchmark, then use the BenchmarkDRP class
-    # to load the data
-    if cfg.get_param("subparser_name") == "benchmark":
-        DRP = BenchmanrkDRP()
-        DRP.init(cfg)
-        DRP.set_input_dir(cfg.get_param("input_dir"))
-        DRP.set_output_dir(cfg.get_param("output_dir"))
-         # Check all paths and directories are valid and exist
-        DRP.check_input_paths()
-        # Create output dir for model input data (to save preprocessed ML data)
-        DRP.check_output_dir()
-
-        # print(DRP.__dict__)
-    else:
-        raise ValueError("Not implemented.")
-   
- 
-
     
     # frm.create_outdir(outdir=params["ml_data_outdir"])
 
@@ -199,15 +176,20 @@ def run(cfg: PreprocessConfig.Preprocess):
     # If the model uses omics data types that are provided as part of the benchmark
     # data, then the model must use the provided data loaders to load the data files
     # from the x_data dir.
-    print("\nLoads omics data.")
+        
+    logger.debug("Load Data from Preprocess")
+    cfg.load_data()
+    # print("\nLoads omics data.")
 
     logger.debug(f"x_data_canc_files: {cfg.get_param('x_data_canc_files')}")
     logger.debug(f"x_data_canc_files: {cfg.dict()['x_data_canc_files']}")
 
     params = cfg.dict()
-    params['x_data_path'] = DRP.x_data_path
-    params['y_data_path'] = DRP.y_data_path
-    params['splits_path'] = DRP.splits_path
+    # params['x_data_path'] = DRP.x_data_path
+    # params['y_data_path'] = DRP.y_data_path
+    # params['splits_path'] = DRP.splits_path
+    logger.debug(f"params: {params['x_data_path']}")
+    sys.exit(1)
 
     # logger.debug("Loading from Alex's code")
     # omics_obj = drp.OmicsLoader(params)
