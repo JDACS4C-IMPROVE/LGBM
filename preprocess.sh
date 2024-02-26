@@ -69,5 +69,5 @@ echo "running command ${CMD}"
 # Set up environmental variables and execute model
 # source /opt/conda/bin/activate /usr/local/conda_envs/Paccmann_MCA
 
-CANDLE_DATA_DIR=${CANDLE_DATA_DIR} $CMD
+CANDLE_DATA_DIR=${CANDLE_DATA_DIR} IMPROVE_DATA_DIR=${CANDLE_DATA_DIR} $CMD
 
