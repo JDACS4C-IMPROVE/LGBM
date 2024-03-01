@@ -65,6 +65,7 @@ filepath = Path(__file__).resolve().parent # [Req]
 # There are two types of params in the list: default and required
 # default:   default values should be used
 # required:  these params must be specified for the model in the param file
+
 app_preproc_params = [
     {"name": "y_data_files", # default
      "type": str,
@@ -189,23 +190,24 @@ def run(cfg: PreprocessConfig.Preprocess):
     # params['y_data_path'] = DRP.y_data_path
     # params['splits_path'] = DRP.splits_path
     logger.debug(f"params: {params['x_data_path']}")
-    sys.exit(1)
+  
 
     # logger.debug("Loading from Alex's code")
     # omics_obj = drp.OmicsLoader(params)
 
-    logger.debug("Loading from DRP class")
-    DRP.load_data(verbose=True)
+    # logger.debug("Loading from DRP class")
+    # DRP.load_data(verbose=True)
 
 
 
     # print(omics_obj)
-    ge = DRP.omics.dfs['cancer_gene_expression.tsv'] # return gene expression
+
+    ge = cfg.omics.dfs['cancer_gene_expression.tsv'] # return gene expression
 
     # print("\nLoad drugs data.")
     # drugs_obj = drp.DrugsLoader(params)
     # print(drugs_obj)
-    md = DRP.drugs.dfs['drug_mordred.tsv'] # return the Mordred descriptors
+    md = cfg.drugs.dfs['drug_mordred.tsv'] # return the Mordred descriptors
     md = md.reset_index()  # TODO. implement reset_index() inside the loader
 
     # ------------------------------------------------------
@@ -232,7 +234,7 @@ def run(cfg: PreprocessConfig.Preprocess):
     # rsp_vl = drp.DrugResponseLoader(params,
     #                                 split_file=params["val_split_file"],
     #                                 verbose=False).dfs["response.tsv"]
-    rsp = pd.concat([DRP.train, DRP.validate], axis=0)
+    rsp = pd.concat([cfg.drp.train, cfg.drp.validate], axis=0)
 
     # Retian feature rows that are present in the y data (response dataframe)
     # Intersection of omics features, drug features, and responses
@@ -277,7 +279,7 @@ def run(cfg: PreprocessConfig.Preprocess):
         #                              split_file=split_file,
         #                              verbose=False).dfs["response.tsv"]
 
-        rsp =getattr(DRP, stage , None)
+        rsp =getattr(cfg.drp , stage , None)
         print(rsp)
 
         # --------------------------------
@@ -310,6 +312,7 @@ def run(cfg: PreprocessConfig.Preprocess):
         data = data.merge(md_sc, on=params["drug_col_name"], how="inner")
         data = data.sample(frac=1.0).reset_index(drop=True) # shuffle
 
+        cfg.logger.debug(f"Save data to {Path(params['output_dir'])/data_fname}")
         print("Save data")
         data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
         data.to_parquet(Path(params["output_dir"])/data_fname) # saves ML data file to parquet
