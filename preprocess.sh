@@ -41,7 +41,9 @@ if [ $# -eq 2 ] ; then
    
         echo "CMD = $CMD"
 
-elif [ $# -ge 3 ] ; then
+ 	fi
+ 
+ elif [ $# -ge 3 ] ; then
 
         CANDLE_DATA_DIR=$1 ; shift
 
