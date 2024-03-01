@@ -16,7 +16,7 @@ CANDLE_MODEL_SCRIPT=lgbm_preprocess_improve.py
 IMPROVE_MODEL_DIR=${IMPROVE_MODEL_DIR:-$( dirname -- "$0" )}
 
 # Combine path and name and check if executable exists
-CANDLE_MODEL=${IMPROVE_MODEL_DIR}/${CANDLE_MODEL}
+CANDLE_MODEL=${IMPROVE_MODEL_DIR}/${CANDLE_MODEL_SCRIPT}
 if [ ! -f ${CANDLE_MODEL} ] ; then
 	echo No such file ${CANDLE_MODEL}
 	exit 404
