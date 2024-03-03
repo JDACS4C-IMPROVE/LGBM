@@ -58,10 +58,25 @@ app_train_params = []
 # All params in model_train_params are optional.
 # If no params are required by the model, then it should be an empty list.
 model_train_params = [
+    {"name": "n_estimators",
+     "type": int,
+     "default": 1000,
+     "help": "Number of estimators."
+    },
+    {"name": "max_depth",
+     "type": int,
+     "default": -1,
+     "help": "Max depth."
+    },
     {"name": "learning_rate",
      "type": float,
      "default": 0.1,
      "help": "Learning rate for the optimizer."
+    },
+    {"name": "num_leaves",
+     "type": int,
+     "default": 31,
+     "help": "Number of leaves."
     },
 ]
 
@@ -128,9 +143,12 @@ def run(params: Dict):
     # Prepare, train, and save model
     # ------------------------------------------------------
     # Prepare model and train settings
-    ml_init_args = {'n_estimators': 1000, 'max_depth': -1,
-                    'learning_rate': params["learning_rate"],
-                    'num_leaves': 31, 'n_jobs': 8, 'random_state': None}
+    ml_init_args = {"n_estimators": params["n_estimators"],
+                    "max_depth": params["max_depth"],
+                    "learning_rate": params["learning_rate"],
+                    "num_leaves": params["num_leaves"],
+                    "n_jobs": 8,
+                    "random_state": None}
     model = lgb.LGBMRegressor(objective='regression', **ml_init_args)
 
     # Train model

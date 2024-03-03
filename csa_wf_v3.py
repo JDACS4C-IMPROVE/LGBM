@@ -40,6 +40,9 @@ class Timer:
 
 fdir = Path(__file__).resolve().parent
 
+y_col_name = "auc"
+# y_col_name = "auc1"
+
 maindir = Path(f"./{y_col_name}")
 MAIN_ML_DATA_DIR = Path(f"./{maindir}/ml_data")
 MAIN_MODEL_DIR = Path(f"./{maindir}/models")
@@ -91,9 +94,6 @@ target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
 
 only_cross_study = False
 # only_cross_study = True
-
-y_col_name = "auc"
-# y_col_name = "auc1"
 
 ## Splits
 split_nums = []  # all splits
