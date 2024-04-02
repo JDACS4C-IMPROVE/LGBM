@@ -191,6 +191,26 @@ def run(params: Dict):
     return val_scores
 
 
+def initialize_parameters(params=None):
+    """ Initialize parameters for model training.
+
+    Returns:
+        dict: dict of CANDLE/IMPROVE parameters and parsed values.
+    """
+    # [Req] Additional definitions
+    additional_definitions = preprocess_params + train_params
+
+    # [Req] Initialize parameters
+    params = frm.initialize_parameters(
+        filepath,
+        default_model="lgbm_params.txt",
+        additional_definitions=additional_definitions,
+        required=None,
+    )
+
+    return params
+
+
 # [Req]
 def main(args):
     # [Req]
