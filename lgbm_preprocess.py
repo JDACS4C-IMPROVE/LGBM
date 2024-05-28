@@ -160,7 +160,7 @@ def run(cfg: PreprocessConfig.Preprocess):
         sys.exit(1)
 
     
-    # frm.create_outdir(outdir=params["ml_data_outdir"])
+    #frm.create_outdir(outdir=params["ml_data_outdir"])
 
     # ------------------------------------------------------
     # [Req] Load X data (feature representations)
@@ -263,6 +263,8 @@ def run(cfg: PreprocessConfig.Preprocess):
     # All models must load response data (y data) using DrugResponseLoader().
     # Below, we iterate over the 3 split files (train, val, test) and load
     # response data, filtered by the split ids from the split files.
+    
+    frm.create_outdir(outdir=params["ml_data_outdir"])
 
     # Dict with split files corresponding to the three sets (train, val, and test)
     stages = {"train": params["train_split_file"],
