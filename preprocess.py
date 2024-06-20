@@ -27,11 +27,11 @@ import pandas as pd
 import joblib
 
 # [Req] IMPROVE/CANDLE imports
-from improve import framework as frm
-from improve import drug_resp_pred as drp
+from improvelib import framework as frm
+from improvelib import drug_resp_pred as drp
 
-from improve import config as BaseConfig
-from improve import preprocess as BasePreprocess
+from improvelib import config as BaseConfig
+from improvelib import preprocess as BasePreprocess
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
