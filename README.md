@@ -14,6 +14,11 @@ A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/d
 + `lgbm_infer_improve.py`: runs inference with the trained LightGBM model
 + `lgbm_params.txt`: parameter file
 
+# Example run 
+```
+python3 preprocess.py benchmark --drp --dataset CCLE --split_id 0 --metric AUC --output_dir test_out
+```
+
 # Dataset
 Benchmark data for CSA can be downloaded from this [site](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
