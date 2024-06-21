@@ -27,14 +27,15 @@ import pandas as pd
 import joblib
 
 # [Req] IMPROVE/CANDLE imports
-from improve import framework as frm
-from improve import drug_resp_pred as drp
+from improvelib import framework as frm
+from improvelib import drug_resp_pred as drp
 
-from improve import config as BaseConfig
-from improve import preprocess as BasePreprocess
+from improvelib import config as BaseConfig
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
+import logging
+import os
 
 filepath = Path(__file__).resolve().parent # [Req]
 
@@ -119,6 +120,81 @@ preprocess_params = app_preproc_params + model_preproc_params
 # ---------------------
 
 
+class Preprocess(BaseConfig.Config):
+    """Class to handle configuration files for Preprocessing."""
+
+    # Set section for config file
+    section = 'Preprocess'
+
+    # Set options for command line
+    preprocess_options = []
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.logger = logging.getLogger("Preprocess")
+        self.logger.setLevel(os.getenv("IMPROVE_LOG_LEVEL" , logging.INFO))
+      
+       
+        self.options = Preprocess.preprocess_options
+        # Set subparser for benchmark and file
+        subparsers=self.cli.parser.add_subparsers(dest='subparser_name')
+        # Benchmark subparser
+        benchmark=subparsers.add_parser('benchmark', help='Use DRPBenchmark_v1.0')
+        benchmark.add_argument('--benchmark_type', choices=['DRP', 'Default'], help='Specify benchmark format, e.g. DRP for DRPBenchmark_v1.0')
+        benchmark.add_argument('--benchmark_dir', metavar='DIR', type=str, dest="benchmark_dir",
+                                    default=os.getenv("IMPROVE_BENCHMARK_DIR" , "./"), 
+                                    help='Base directory for DRPBenchmark_v1.0 data. Default is IMPROVE_BENCHMARK_DIR or if not specified current working directory. All additional input pathes will be relative to the base input directory.')
+        
+        drp=benchmark.add_argument_group('DRPBenchmark_v1.0', 'Options for drug response prediction benchmark v1.0')
+        drp.add_argument('--drp', action='store_true', help='Use DRPBenchmark_v1.0')
+        drp.add_argument('--drp_dir', metavar='DIR', type=str, dest="benchmark_dir",
+                                    default=os.getenv("IMPROVE_BENCHMARK_DIR" , "./"), 
+                                    help='Base directory for DRPBenchmark_v1.0 data. Default is IMPROVE_BENCHMARK_DIR or if not specified current working directory. All additional input pathes will be relative to the base input directory.')
+        
+        drp.add_argument("--dataset", type=str, default=None , help="Name of dataset")
+        drp.add_argument("--split_id", type=str, default="y_data" , help="Split ID for the dataset")
+        drp.add_argument("--splits_dir", type=str, default="splits" , help="Dir name that contains files that store split ids of the y data file.")
+        drp.add_argument("--metric", type=str, default="auc" , 
+                         help="Metric for drug response prediction problem it can be IC50, AUC, and others.")
+        
+        drp.add_argument("--feature_data_format", type=str, default="parquet" ,
+                        help="Output format for the preprocessed data. Default is parquet.")
+        drp.add_argument("--output_dir", type=str, default="auc" , 
+                         help="Metric for drug response prediction problem it can be IC50, AUC, and others.")
+        
+
+    
+    def get_param(self, key):
+        """Get a parameter from the Preprocessing config."""
+        return super().get_param(Preprocess.section, key)
+    
+    def set_params(self, key=None, value=None):
+        print( "set_params" + type(self))
+        return super().set_param(Preprocess.section, key, value)
+    
+    def set_param(self, key=None, value=None):
+        return super().set_param(Preprocess.section, key, value)
+
+    def dict(self):
+        """Get the Preprocessing config as a dictionary."""
+        return super().dict(Preprocess.section)
+
+    def initialize_parameters(self, pathToModelDir, section='Preprocess', default_config='default.cfg', default_model=None, additional_definitions=None, required=None):
+        """Initialize Command line Interfcace and config for Preprocessing."""
+        self.logger.debug("Initializing parameters for Preprocessing.")
+        print( "initialize_parameters" + str(type(self)) )
+
+        if additional_definitions :
+            self.options = self.options + additional_definitions
+       
+        p = super().initialize_parameters(pathToModelDir, section, default_config, default_model, self.options , required)
+        print(self.get_param("log_level"))
+        self.logger.setLevel(self.get_param("log_level"))
+        return p
+
+
+
+
 # [Req]
 def run(cfg, params: Dict):
     """ Run data preprocessing.
@@ -135,80 +211,70 @@ def run(cfg, params: Dict):
     # ------------------------------------------------------
     # [Req] Build paths and create output dir
     # ------------------------------------------------------
-    # Build paths for raw_data, x_data, y_data, splits
-    params = frm.build_paths(params)  
 
     # Create output dir for model input data (to save preprocessed ML data)
-    frm.create_outdir(outdir=params["ml_data_outdir"])
+    params = drp.ParameterConverter().update_params(params)
+    frm.create_outdir(outdir=str(params["output_dir"]))
 
-    # ------------------------------------------------------
-    # [Req] Load X data (feature representations)
-    # ------------------------------------------------------
-    # Use the provided data loaders to load data that is required by the model.
-    #
-    # Benchmark data includes three dirs: x_data, y_data, splits.
-    # The x_data contains files that represent feature information such as
-    # cancer representation (e.g., omics) and drug representation (e.g., SMILES).
-    #
-    # Prediction models utilize various types of feature representations.
-    # Drug response prediction (DRP) models generally use omics and drug features.
-    #
-    # If the model uses omics data types that are provided as part of the benchmark
-    # data, then the model must use the provided data loaders to load the data files
-    # from the x_data dir.
-    print("\nLoads omics data.")
-    omics_obj = drp.OmicsLoader(params)
-    # print(omics_obj)
-    ge = omics_obj.dfs['cancer_gene_expression.tsv'] # return gene expression
+    benchmark_dir = params["benchmark_dir"]
+    benchmark = drp.SingleDRPBenchmark()
+    benchmark.set_benchmark_dir(benchmark_dir)
 
-    print("\nLoad drugs data.")
-    drugs_obj = drp.DrugsLoader(params)
-    # print(drugs_obj)
-    md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
-    md = md.reset_index()  # TODO. implement reset_index() inside the loader
+    benchmark.set_dataset(params["dataset"])
+    benchmark.set_split_id(params["split_id"])
+    benchmark.set_splits_dir(params["splits_dir"])
+    benchmark.set_drp_metric(params["metric"])
 
-    # ------------------------------------------------------
-    # Further preprocess X data
-    # ------------------------------------------------------
-    # Gene selection (based on LINCS landmark genes)
-    if params["use_lincs"]:
-        genes_fpath = filepath/"model_utils/landmark_genes.txt"
-        ge = gene_selection(ge, genes_fpath, canc_col_name=params["canc_col_name"])
+    ge = benchmark.get_full_dataframe(drp.SingleDRPDataFrame.CELL_LINE_GENE_EXPRESSION)
+    md = benchmark.get_full_dataframe(drp.SingleDRPDataFrame.DRUG_MORDRED)
+    md = md.reset_index()
+
 
     # Prefix gene column names with "ge."
     fea_sep = "."
-    fea_prefix = "ge"
-    ge = ge.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge.columns[1:]})
+    def update_gene_expression(ge, feature_separator):
+        ge.columns = ge.columns.get_level_values('Gene_Symbol').values
+    
+        # HACKY STUFF, SHOULD BE ADDRESSED IN THE BENCHMARK DATAFILE
+        ge.columns = [benchmark.CANCER_COL_NAME] + ge.columns.tolist()[1:]
+        #
+        if params["use_lincs"]:
+            genes_fpath = filepath/"model_utils/landmark_genes.txt"
+            ge = gene_selection(ge, genes_fpath, canc_col_name=benchmark.CANCER_COL_NAME)
+        fea_prefix = "ge"
+        ge = ge.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge.columns[1:]})
+        return ge
 
+    ge = update_gene_expression(ge, fea_sep)
     # ------------------------------------------------------
     # Create feature scaler
     # ------------------------------------------------------
     # Load and combine responses
     print("Create feature scaler.")
-    rsp_tr = drp.DrugResponseLoader(params,
-                                    split_file=params["train_split_file"],
-                                    verbose=False).dfs["response.tsv"]
-    rsp_vl = drp.DrugResponseLoader(params,
-                                    split_file=params["val_split_file"],
-                                    verbose=False).dfs["response.tsv"]
+    benchmark.set_split_type(drp.SplitType.TRAIN)
+    rsp_tr = benchmark.get_dataframe(drp.SingleDRPDataFrame.RESPONSE)
+
+    benchmark.set_split_type(drp.SplitType.VALIDATION)
+    rsp_vl = benchmark.get_dataframe(drp.SingleDRPDataFrame.RESPONSE)
+
     rsp = pd.concat([rsp_tr, rsp_vl], axis=0)
 
     # Retian feature rows that are present in the y data (response dataframe)
     # Intersection of omics features, drug features, and responses
-    rsp = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
-    rsp = rsp.merge(md[params["drug_col_name"]], on=params["drug_col_name"], how="inner")
-    ge_sub = ge[ge[params["canc_col_name"]].isin(rsp[params["canc_col_name"]])].reset_index(drop=True)
-    md_sub = md[md[params["drug_col_name"]].isin(rsp[params["drug_col_name"]])].reset_index(drop=True)
+    rsp = rsp.merge(ge[benchmark.CANCER_COL_NAME], on=benchmark.CANCER_COL_NAME, how="inner")
+    rsp = rsp.merge(md[benchmark.DRUG_COL_NAME], on=benchmark.DRUG_COL_NAME, how="inner")
+    ge_sub = ge[ge[benchmark.CANCER_COL_NAME].isin(rsp[benchmark.CANCER_COL_NAME])].reset_index(drop=True)
+    md_sub = md[md[benchmark.DRUG_COL_NAME].isin(rsp[benchmark.DRUG_COL_NAME])].reset_index(drop=True)
 
     # Scale gene expression
     _, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
+    ge_scaler_fpath = Path(params["output_dir"]) / params["ge_scaler_fname"]
     joblib.dump(ge_scaler, ge_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
 
     # Scale Mordred descriptors
     _, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
-    md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
+    md_scaler_fpath = Path(params["output_dir"]) / params["md_scaler_fname"]
     joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
 
@@ -221,53 +287,48 @@ def run(cfg, params: Dict):
     # Below, we iterate over the 3 split files (train, val, test) and load
     # response data, filtered by the split ids from the split files.
 
-    # Dict with split files corresponding to the three sets (train, val, and test)
-    stages = {"train": params["train_split_file"],
-              "val": params["val_split_file"],
-              "test": params["test_split_file"]}
-
-    for stage, split_file in stages.items():
+    for stage in drp.SplitType:
 
         # --------------------------------
         # [Req] Load response data
         # --------------------------------
-        rsp = drp.DrugResponseLoader(params,
-                                     split_file=split_file,
-                                     verbose=False).dfs["response.tsv"]
+        benchmark.set_split_type(stage)
+        rsp = benchmark.get_dataframe(drp.SingleDRPDataFrame.RESPONSE)
+        ge_sub = benchmark.get_dataframe(drp.SingleDRPDataFrame.CELL_LINE_GENE_EXPRESSION).reset_index(drop=True)
+        md_sub = benchmark.get_dataframe(drp.SingleDRPDataFrame.DRUG_MORDRED).reset_index(drop=False)
+
+        ge_sub = update_gene_expression(ge_sub, fea_sep)
 
         # --------------------------------
         # Data prep
         # --------------------------------
         # Retain (canc, drug) responses for which both omics and drug features
         # are available.
-        rsp = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
-        rsp = rsp.merge(md[params["drug_col_name"]], on=params["drug_col_name"], how="inner")
-        ge_sub = ge[ge[params["canc_col_name"]].isin(rsp[params["canc_col_name"]])].reset_index(drop=True)
-        md_sub = md[md[params["drug_col_name"]].isin(rsp[params["drug_col_name"]])].reset_index(drop=True)
+        rsp = rsp.merge(ge_sub[benchmark.CANCER_COL_NAME], on=benchmark.CANCER_COL_NAME, how="inner")
+        rsp = rsp.merge(md_sub[benchmark.DRUG_COL_NAME], on=benchmark.DRUG_COL_NAME, how="inner")
+
 
         # Scale features
         ge_sc, _ = scale_df(ge_sub, scaler=ge_scaler) # scale gene expression
         md_sc, _ = scale_df(md_sub, scaler=md_scaler) # scale Mordred descriptors
-        # print("GE mean:", ge_sc.iloc[:,1:].mean(axis=0).mean())
-        # print("GE var: ", ge_sc.iloc[:,1:].var(axis=0).mean())
-        # print("MD mean:", md_sc.iloc[:,1:].mean(axis=0).mean())
-        # print("MD var: ", md_sc.iloc[:,1:].var(axis=0).mean())
-
+     
         # --------------------------------
-        # [Req] Save ML data files in params["ml_data_outdir"]
+        # [Req] Save ML data files in params["output_dir"]
         # The implementation of this step depends on the model.
         # --------------------------------
         # [Req] Build data name
-        data_fname = frm.build_ml_data_name(params, stage)
-
+        
         print("Merge data")
-        data = rsp.merge(ge_sc, on=params["canc_col_name"], how="inner")
-        data = data.merge(md_sc, on=params["drug_col_name"], how="inner")
+        data = rsp.merge(ge_sc, on=benchmark.CANCER_COL_NAME, how="inner")
+        data = data.merge(md_sc, on=benchmark.DRUG_COL_NAME, how="inner")
         data = data.sample(frac=1.0).reset_index(drop=True) # shuffle
 
         print("Save data")
-        data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
-        data.to_parquet(Path(params["ml_data_outdir"])/data_fname) # saves ML data file to parquet
+        file_type = params["feature_data_format"]
+        data_fname = f'{benchmark.get_state_string()}.{file_type}'
+        if "study" in data.columns:
+            data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
+        data.to_parquet(Path(params["output_dir"])/data_fname) # saves ML data file to parquet
 
         # Prepare the y dataframe for the current stage
         fea_list = ["ge", "mordred"]
@@ -276,9 +337,10 @@ def run(cfg, params: Dict):
         ydf = data[meta_cols]
 
         # [Req] Save y dataframe for the current stage
+        params["y_data_suffix"] = str(benchmark.get_metric())
         frm.save_stage_ydf(ydf, params, stage)
 
-    return params["ml_data_outdir"]
+    return params["output_dir"]
 
 
 # [Req]
@@ -287,9 +349,8 @@ def main(args):
 
     # Additional definitions
     additional_definitions = preprocess_params
-
     # Initialize Config and CLI
-    pp = BasePreprocess.Preprocess()
+    pp = Preprocess()
 
     params = pp.initialize_parameters(
         filepath,
