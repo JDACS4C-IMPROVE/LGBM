@@ -18,7 +18,6 @@ All the outputs from this preprocessing script are saved in params["ml_data_outd
    Generated files:
         train_y_data.csv, val_y_data.csv, and test_y_data.csv.
 """
-
 import sys
 from pathlib import Path
 from typing import Dict
@@ -28,7 +27,7 @@ import joblib
 
 # [Req] IMPROVE/CANDLE imports
 from improvelib import framework as frm
-from improvelib import drug_resp_pred as drp
+import improvelib.Benchmarks.DrugResponsePrediction as drpb
 
 from improvelib import config as BaseConfig
 
@@ -213,20 +212,20 @@ def run(cfg, params: Dict):
     # ------------------------------------------------------
 
     # Create output dir for model input data (to save preprocessed ML data)
-    params = drp.ParameterConverter().update_params(params)
+    params = drpb.SingleDRPParameterConverter().update_params(params)
     frm.create_outdir(outdir=str(params["output_dir"]))
 
     benchmark_dir = params["benchmark_dir"]
-    benchmark = drp.SingleDRPBenchmark()
+    benchmark = drpb.SingleDRPBenchmark()
     benchmark.set_benchmark_dir(benchmark_dir)
 
     benchmark.set_dataset(params["dataset"])
     benchmark.set_split_id(params["split_id"])
     benchmark.set_splits_dir(params["splits_dir"])
-    benchmark.set_drp_metric(params["metric"])
+    benchmark.set_metric(params["metric"])
 
-    ge = benchmark.get_full_dataframe(drp.SingleDRPDataFrame.CELL_LINE_GENE_EXPRESSION)
-    md = benchmark.get_full_dataframe(drp.SingleDRPDataFrame.DRUG_MORDRED)
+    ge = benchmark.get_full_dataframe(drpb.SingleDRPDataFrame.CELL_LINE_GENE_EXPRESSION)
+    md = benchmark.get_full_dataframe(drpb.SingleDRPDataFrame.DRUG_MORDRED)
     md = md.reset_index()
 
 
@@ -251,11 +250,11 @@ def run(cfg, params: Dict):
     # ------------------------------------------------------
     # Load and combine responses
     print("Create feature scaler.")
-    benchmark.set_split_type(drp.SplitType.TRAIN)
-    rsp_tr = benchmark.get_dataframe(drp.SingleDRPDataFrame.RESPONSE)
+    benchmark.set_stage(drpb.Stage.TRAIN)
+    rsp_tr = benchmark.get_dataframe(drpb.SingleDRPDataFrame.RESPONSE)
 
-    benchmark.set_split_type(drp.SplitType.VALIDATION)
-    rsp_vl = benchmark.get_dataframe(drp.SingleDRPDataFrame.RESPONSE)
+    benchmark.set_stage(drpb.Stage.VALIDATION)
+    rsp_vl = benchmark.get_dataframe(drpb.SingleDRPDataFrame.RESPONSE)
 
     rsp = pd.concat([rsp_tr, rsp_vl], axis=0)
 
@@ -287,15 +286,15 @@ def run(cfg, params: Dict):
     # Below, we iterate over the 3 split files (train, val, test) and load
     # response data, filtered by the split ids from the split files.
 
-    for stage in drp.SplitType:
+    for stage in drpb.Stage:
 
         # --------------------------------
         # [Req] Load response data
         # --------------------------------
-        benchmark.set_split_type(stage)
-        rsp = benchmark.get_dataframe(drp.SingleDRPDataFrame.RESPONSE)
-        ge_sub = benchmark.get_dataframe(drp.SingleDRPDataFrame.CELL_LINE_GENE_EXPRESSION).reset_index(drop=True)
-        md_sub = benchmark.get_dataframe(drp.SingleDRPDataFrame.DRUG_MORDRED).reset_index(drop=False)
+        benchmark.set_stage(stage)
+        rsp = benchmark.get_dataframe(drpb.SingleDRPDataFrame.RESPONSE)
+        ge_sub = benchmark.get_dataframe(drpb.SingleDRPDataFrame.CELL_LINE_GENE_EXPRESSION).reset_index(drop=True)
+        md_sub = benchmark.get_dataframe(drpb.SingleDRPDataFrame.DRUG_MORDRED).reset_index(drop=False)
 
         ge_sub = update_gene_expression(ge_sub, fea_sep)
 
@@ -347,6 +346,7 @@ def run(cfg, params: Dict):
 def main(args):
     """ Main function to run data preprocessing."""
 
+    
     # Additional definitions
     additional_definitions = preprocess_params
     # Initialize Config and CLI
