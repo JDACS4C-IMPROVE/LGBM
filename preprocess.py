@@ -32,6 +32,7 @@ from improvelib import drug_resp_pred as drp
 
 from improvelib import config as BaseConfig
 from improvelib import preprocess as BasePreprocess
+from improvelib.Preprocess.DRP import DrugResponsePrediction
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
@@ -289,17 +290,22 @@ def main(args):
     additional_definitions = preprocess_params
 
     # Initialize Config and CLI
-    pp = BasePreprocess.Preprocess()
+    cfg_object = DrugResponsePrediction()
 
-    params = pp.initialize_parameters(
+    # Initialize parameters
+    # create path to common params file
+    common_params_file = filepath/"config/common_params.yml"
+    common_params = cfg_object.load_parameters(common_params_file)
+    cfg_object.cli.set_command_line_options(common_params, "LGBM")
+
+    params = cfg_object.initialize_parameters(
         filepath,
-        default_model="lgbm_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
+        default_model="config/default.cfg",
+        default_config="config/default.cfg",
         additional_definitions=additional_definitions,
         required=None,
     )
-    ml_data_outdir = run(pp,params)
+    ml_data_outdir = run(cfg_object, params)
     print("\nFinished data preprocessing.")
 
 

@@ -1,0 +1,18 @@
+# Custom parameters for LGBM
+# Follows the format for argparse arguments in Python 
+- name: num_leaves
+  type: int
+  default: 31
+  description: 'Maximum tree leaves for base learners'
+- name: learning_rate
+  type: float
+  default: 0.1
+  description: 'Boosting learning rate'
+- name: n_estimators
+  type: int
+  default: 100
+  description: 'Number of boosting iterations'
+- name: apartin
+  type: str
+  default: "wishlist"
+  description: 'We want this'
