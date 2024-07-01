@@ -2,6 +2,9 @@
 
 set -e
 
+# Creating conda env with python 3.7 on Mac M1
+# https://stackoverflow.com/questions/70205633/cannot-install-python-3-7-on-osx-arm64
+
 # conda create -n lgbm_py37 python=3.7 pip --yes
 
 # # Not required
