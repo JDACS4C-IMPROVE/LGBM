@@ -31,6 +31,7 @@ import joblib
 #NCK from improve import drug_resp_pred as drp
 from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig #NCK
 from improvelib.utils import str2bool
+import improvelib.utils as frm
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
