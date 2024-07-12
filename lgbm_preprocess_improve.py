@@ -32,6 +32,9 @@ import joblib
 from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig #NCK
 from improvelib.utils import str2bool
 import improvelib.utils as frm
+import improvelib.applications.drug_response_prediction.drug_utils as drugs
+import improvelib.applications.drug_response_prediction.omics_utils as omics
+import improvelib.applications.drug_response_prediction.drp_utils as drp
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
@@ -158,12 +161,14 @@ def run(params: Dict):
     # data, then the model must use the provided data loaders to load the data files
     # from the x_data dir.
     print("\nLoads omics data.")
-    omics_obj = drp.OmicsLoader(params)
+    #NCK omics_obj = drp.OmicsLoader(params)
+    omics_obj = omics.OmicsLoader(params) #NCK
     # print(omics_obj)
     ge = omics_obj.dfs['cancer_gene_expression.tsv'] # return gene expression
 
     print("\nLoad drugs data.")
-    drugs_obj = drp.DrugsLoader(params)
+    #NCK drugs_obj = drp.DrugsLoader(params)
+    drugs_obj = drugs.DrugsLoader(params) #NCK
     # print(drugs_obj)
     md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
     md = md.reset_index()  # TODO. implement reset_index() inside the loader
