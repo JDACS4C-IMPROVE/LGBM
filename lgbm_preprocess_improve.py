@@ -287,7 +287,7 @@ def main(args):
     cfg = DRPPreprocessConfig() #NCK
     additional_definitions = preprocess_params
     #NCK params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
-    params = cfg.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
+    params = cfg.initialize_parameters(filepath, default_config="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
     ml_data_outdir = run(params)
     print("\nFinished data preprocessing.")
 
