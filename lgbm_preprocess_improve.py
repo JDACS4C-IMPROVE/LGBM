@@ -30,6 +30,7 @@ import joblib
 #NCK from improve import framework as frm
 #NCK from improve import drug_resp_pred as drp
 from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig #NCK
+from improvelib.utils import str2bool
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
@@ -89,7 +90,8 @@ app_preproc_params = [
 # If no params are required by the model, then it should be an empty list.
 model_preproc_params = [
     {"name": "use_lincs",
-     "type": frm.str2bool,
+     #NCK "type": frm.str2bool,
+     "type": str2bool, #NCK
      "default": True,
      "help": "Flag to indicate if landmark genes are used for gene selection.",
     },
