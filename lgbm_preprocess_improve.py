@@ -27,8 +27,9 @@ import pandas as pd
 import joblib
 
 # [Req] IMPROVE/CANDLE imports
-from improve import framework as frm
-from improve import drug_resp_pred as drp
+#NCK from improve import framework as frm
+#NCK from improve import drug_resp_pred as drp
+from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig #NCK
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
@@ -281,15 +282,10 @@ def run(params: Dict):
 # [Req]
 def main(args):
     # [Req]
+    cfg = DRPPreprocessConfig() #NCK
     additional_definitions = preprocess_params
-    params = frm.initialize_parameters(
-        filepath,
-        default_model="lgbm_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
-        additional_definitions=additional_definitions,
-        required=None,
-    )
+    #NCK params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
+    params = cfg.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
     ml_data_outdir = run(params)
     print("\nFinished data preprocessing.")
 
