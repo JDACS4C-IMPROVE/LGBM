@@ -22,7 +22,10 @@ import pandas as pd
 import lightgbm as lgb
 
 # [Req] IMPROVE/CANDLE imports
-from improve import framework as frm
+#NCK from improve import framework as frm
+from improvelib.applications.drug_response_prediction.config import DRPInferConfig #NCK
+from improvelib.utils import str2bool #NCK
+import improvelib.utils as frm #NCK
 
 # Model-specifc imports
 from model_utils.utils import extract_subset_fea
@@ -133,16 +136,10 @@ def run(params: Dict):
 # [Req]
 def main(args):
     # [Req]
+    cfg = DRPInferConfig() #NCK
     additional_definitions = preprocess_params + train_params + infer_params
-    params = frm.initialize_parameters(
-        filepath,
-        default_model="lgbm_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
-        additional_definitions=additional_definitions,
-        # required=req_infer_params,
-        required=None,
-    )
+    #NCK params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
+    params = cfg.initialize_parameters(filepath, default_config="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
     test_scores = run(params)
     print("\nFinished model inference.")
 
