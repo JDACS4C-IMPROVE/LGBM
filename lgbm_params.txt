@@ -19,6 +19,7 @@ val_ml_data_dir = ./ml_data/CCLE-CCLE/split_0
 model_outdir = ./out_models/CCLE/split_0
 model_file_name = model
 model_file_format = .txt
+learning_rate = 0.1
 
 [Infer]
 test_ml_data_dir = ./ml_data/CCLE-CCLE/split_0
