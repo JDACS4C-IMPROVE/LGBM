@@ -21,11 +21,11 @@ from typing import Dict
 import pandas as pd
 import lightgbm as lgb
 
-# [Req] IMPROVE/CANDLE imports
-#NCK from improve import framework as frm
-from improvelib.applications.drug_response_prediction.config import DRPInferConfig #NCK
-from improvelib.utils import str2bool #NCK
-import improvelib.utils as frm #NCK
+# [Req] IMPROVE imports
+# from improve import framework as frm
+from improvelib.applications.drug_response_prediction.config import DRPInferConfig
+from improvelib.utils import str2bool
+import improvelib.utils as frm
 
 # Model-specifc imports
 from model_utils.utils import extract_subset_fea
@@ -39,26 +39,13 @@ filepath = Path(__file__).resolve().parent # [Req]
 # ---------------------
 # [Req] Parameter lists
 # ---------------------
-# Two parameter lists are required:
-# 1. app_infer_params
-# 2. model_infer_params
-# 
-# The values for the parameters in both lists should be specified in a
-# parameter file that is passed as default_model arg in
-# frm.initialize_parameters().
-
-# 1. App-specific params (App: monotherapy drug response prediction)
-# Currently, there are no app-specific params in this script.
-app_infer_params = []
-
-# 2. Model-specific params (Model: LightGBM)
+# Model-specific params (Model: LightGBM)
 # All params in model_infer_params are optional.
 # If no params are required by the model, then it should be an empty list.
 model_infer_params = []
 
-# [Req] Combine the two lists (the combined parameter list will be passed to
-# frm.initialize_parameters() in the main().
-infer_params = app_infer_params + model_infer_params
+# infer_params = app_infer_params + model_infer_params
+infer_params = model_infer_params
 # ---------------------
 
 
@@ -73,12 +60,13 @@ def run(params: Dict):
         dict: prediction performance scores computed on test data according
             to the metrics_list.
     """
-    # import ipdb; ipdb.set_trace()
+    # breakpoint()
+    # from pprint import pprint; pprint(params);
 
     # ------------------------------------------------------
     # [Req] Create output dir
     # ------------------------------------------------------
-    frm.create_outdir(outdir=params["infer_outdir"])
+    # frm.create_outdir(outdir=params["infer_outdir"]) # TODO cfg.initialize_parameters creates params['output_dir'] where the model will be stored
 
     # ------------------------------------------------------
     # [Req] Create data name for test set
@@ -88,7 +76,8 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Load model input data (ML data)
     # ------------------------------------------------------
-    te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname)
+    # te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname)
+    te_data = pd.read_parquet(Path(params["input_dir"])/test_data_fname) # TODO explore input_dir and output_dir
 
     fea_list = ["ge", "mordred"]
     fea_sep = "."
@@ -103,7 +92,8 @@ def run(params: Dict):
     # Load best model and compute predictions
     # ------------------------------------------------------
     # Build model path
-    modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # [Req]
+    # modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # [Req]
+    modelpath = frm.build_model_path(params, model_dir=params["input_dir"]) # TODO explore input_dir and output_dir
 
     # Load LightGBM
     model = lgb.Booster(model_file=str(modelpath))
@@ -118,7 +108,8 @@ def run(params: Dict):
     frm.store_predictions_df(
         params,
         y_true=test_true, y_pred=test_pred, stage="test",
-        outdir=params["infer_outdir"]
+        # outdir=params["infer_outdir"]
+        outdir=params["output_dir"] # TODO explore input_dir and output_dir
     )
 
     # ------------------------------------------------------
@@ -127,7 +118,9 @@ def run(params: Dict):
     test_scores = frm.compute_performace_scores(
         params,
         y_true=test_true, y_pred=test_pred, stage="test",
-        outdir=params["infer_outdir"], metrics=metrics_list
+        # outdir=params["infer_outdir"], metrics=metrics_list
+        outdir=params["output_dir"], # TODO explore input_dir and output_dir
+        metrics=metrics_list
     )
 
     return test_scores
@@ -136,10 +129,16 @@ def run(params: Dict):
 # [Req]
 def main(args):
     # [Req]
-    cfg = DRPInferConfig() #NCK
     additional_definitions = preprocess_params + train_params + infer_params
-    #NCK params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
-    params = cfg.initialize_parameters(filepath, default_config="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
+    # params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
+    cfg = DRPInferConfig()
+    params = cfg.initialize_parameters(
+        pathToModelDir=filepath,
+        default_config="lgbm_params.txt",
+        default_model=None,
+        additional_cli_section=None,
+        additional_definitions=additional_definitions,
+        required=None)
     test_scores = run(params)
     print("\nFinished model inference.")
 
