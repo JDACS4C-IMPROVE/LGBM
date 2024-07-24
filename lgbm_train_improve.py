@@ -28,12 +28,11 @@ from typing import Dict
 import pandas as pd
 import lightgbm as lgb
 
-# [Req] IMPROVE/CANDLE imports
-#NCK from improve import framework as frm
-from improvelib.applications.drug_response_prediction.config import DRPTrainConfig #NCK
-from improvelib.utils import str2bool #NCK
-import improvelib.utils as frm #NCK
-
+# [Req] IMPROVE imports
+# from improve import framework as frm
+from improvelib.applications.drug_response_prediction.config import DRPTrainConfig
+from improvelib.utils import str2bool
+import improvelib.utils as frm
 
 # Model-specifc imports
 from model_utils.utils import extract_subset_fea
@@ -46,19 +45,7 @@ filepath = Path(__file__).resolve().parent # [Req]
 # ---------------------
 # [Req] Parameter lists
 # ---------------------
-# Two parameter lists are required:
-# 1. app_train_params
-# 2. model_train_params
-# 
-# The values for the parameters in both lists should be specified in a
-# parameter file that is passed as default_model arg in
-# frm.initialize_parameters().
-
-# 1. App-specific params (App: monotherapy drug response prediction)
-# Currently, there are no app-specific params for this script.
-app_train_params = []
-
-# 2. Model-specific params (Model: LightGBM)
+# Model-specific params (Model: LightGBM)
 # All params in model_train_params are optional.
 # If no params are required by the model, then it should be an empty list.
 model_train_params = [
@@ -84,9 +71,8 @@ model_train_params = [
     },
 ]
 
-# Combine the two lists (the combined parameter list will be passed to
-# frm.initialize_parameters() in the main().
-train_params = app_train_params + model_train_params
+# train_params = app_train_params + model_train_params
+train_params = model_train_params
 # ---------------------
 
 # [Req] List of metrics names to compute prediction performance scores
@@ -104,17 +90,19 @@ def run(params: Dict):
         dict: prediction performance scores computed on validation data
             according to the metrics_list.
     """
-    # import pdb; pdb.set_trace()
+    # breakpoint()
+    # from pprint import pprint; pprint(params);
 
     # ------------------------------------------------------
     # [Req] Create output dir and build model path
     # ------------------------------------------------------
     # Create output dir for trained model, val set predictions, val set
     # performance scores
-    frm.create_outdir(outdir=params["model_outdir"])
+    # frm.create_outdir(outdir=params["model_outdir"]) # TODO cfg.initialize_parameters creates params['output_dir'] where the model will be stored
 
     # Build model path
-    modelpath = frm.build_model_path(params, model_dir=params["model_outdir"])
+    # modelpath = frm.build_model_path(params, model_dir=params["model_outdir"])
+    modelpath = frm.build_model_path(params, model_dir=params["output_dir"]) # TODO explore input_dir and output_dir
 
     # ------------------------------------------------------
     # [Req] Create data names for train and val sets
@@ -125,8 +113,10 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Load model input data (ML data)
     # ------------------------------------------------------
-    tr_data = pd.read_parquet(Path(params["train_ml_data_dir"])/train_data_fname)
-    vl_data = pd.read_parquet(Path(params["val_ml_data_dir"])/val_data_fname)
+    # tr_data = pd.read_parquet(Path(params["train_ml_data_dir"])/train_data_fname)
+    # vl_data = pd.read_parquet(Path(params["val_ml_data_dir"])/val_data_fname)
+    tr_data = pd.read_parquet(Path(params["input_dir"])/train_data_fname) # TODO explore input_dir and output_dir
+    vl_data = pd.read_parquet(Path(params["input_dir"])/val_data_fname) # TODO explore input_dir and output_dir
 
     fea_list = ["ge", "mordred"]
     fea_sep = "."
@@ -180,7 +170,8 @@ def run(params: Dict):
     frm.store_predictions_df(
         params,
         y_true=val_true, y_pred=val_pred, stage="val",
-        outdir=params["model_outdir"]
+        # outdir=params["model_outdir"]
+        outdir=params["output_dir"] # TODO explore input_dir and output_dir
     )
 
     # ------------------------------------------------------
@@ -189,7 +180,9 @@ def run(params: Dict):
     val_scores = frm.compute_performace_scores(
         params,
         y_true=val_true, y_pred=val_pred, stage="val",
-        outdir=params["model_outdir"], metrics=metrics_list
+        # outdir=params["model_outdir"],
+        outdir=params["output_dir"], # TODO explore input_dir and output_dir
+        metrics=metrics_list
     )
 
     return val_scores
@@ -199,7 +192,7 @@ def initialize_parameters(params=None):
     """ Initialize parameters for model training.
 
     Returns:
-        dict: dict of CANDLE/IMPROVE parameters and parsed values.
+        dict: dict of IMPROVE/CANDLE parameters and parsed values.
     """
     # [Req] Additional definitions
     additional_definitions = preprocess_params + train_params
@@ -218,10 +211,16 @@ def initialize_parameters(params=None):
 # [Req]
 def main(args):
     # [Req]
-    cfg = DRPTrainConfig() #NCK
+    cfg = DRPTrainConfig()
+    # params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
     additional_definitions = preprocess_params + train_params
-    #NCK params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
-    params = cfg.initialize_parameters(filepath, default_config="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
+    params = cfg.initialize_parameters(
+        pathToModelDir=filepath,
+        default_config="lgbm_params.txt",
+        default_model=None,
+        additional_cli_section=None,
+        additional_definitions=additional_definitions,
+        required=None)
     val_scores = run(params)
     print("\nFinished model training.")
 

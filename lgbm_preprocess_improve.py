@@ -26,15 +26,15 @@ from typing import Dict
 import pandas as pd
 import joblib
 
-# [Req] IMPROVE/CANDLE imports
-#NCK from improve import framework as frm
-#NCK from improve import drug_resp_pred as drp
-from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig #NCK
-from improvelib.utils import str2bool #NCK
-import improvelib.utils as frm #NCK
-import improvelib.applications.drug_response_prediction.drug_utils as drugs #NCK
-import improvelib.applications.drug_response_prediction.omics_utils as omics #NCK
-import improvelib.applications.drug_response_prediction.drp_utils as drp #NCK
+# [Req] IMPROVE imports
+# from improve import framework as frm
+# from improve import drug_resp_pred as drp
+from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig
+from improvelib.utils import str2bool
+import improvelib.utils as frm
+import improvelib.applications.drug_response_prediction.drug_utils as drugs
+import improvelib.applications.drug_response_prediction.omics_utils as omics
+import improvelib.applications.drug_response_prediction.drp_utils as drp
 
 # Model-specifc imports
 from model_utils.utils import gene_selection, scale_df
@@ -44,58 +44,12 @@ filepath = Path(__file__).resolve().parent # [Req]
 # ---------------------
 # [Req] Parameter lists
 # ---------------------
-# Two parameter lists are required:
-# 1. app_preproc_params
-# 2. model_preproc_params
-# 
-# The values for the parameters in both lists should be specified in a
-# parameter file that is passed as default_model arg in
-# frm.initialize_parameters().
-
-# 1. App-specific params (App: monotherapy drug response prediction)
-# Note! This list should not be modified (i.e., no params should added or
-# removed from the list.
-# 
-# There are two types of params in the list: default and required
-# default:   default values should be used
-# required:  these params must be specified for the model in the param file
-app_preproc_params = [
-    {"name": "y_data_files", # default
-     "type": str,
-     "help": "List of files that contain the y (prediction variable) data. \
-             Example: [['response.tsv']]",
-    },
-    {"name": "x_data_canc_files", # required
-     "type": str,
-     "help": "List of feature files including gene_system_identifer. Examples: \n\
-             1) [['cancer_gene_expression.tsv', ['Gene_Symbol']]] \n\
-             2) [['cancer_copy_number.tsv', ['Ensembl', 'Entrez']]].",
-    },
-    {"name": "x_data_drug_files", # required
-     "type": str,
-     "help": "List of feature files. Examples: \n\
-             1) [['drug_SMILES.tsv']] \n\
-             2) [['drug_SMILES.tsv'], ['drug_ecfp4_nbits512.tsv']]",
-    },
-    {"name": "canc_col_name",
-     "default": "improve_sample_id", # default
-     "type": str,
-     "help": "Column name in the y (response) data file that contains the cancer sample ids.",
-    },
-    {"name": "drug_col_name", # default
-     "default": "improve_chem_id",
-     "type": str,
-     "help": "Column name in the y (response) data file that contains the drug ids.",
-    },
-]
-
-# 2. Model-specific params (Model: LightGBM)
+# Model-specific params (Model: LightGBM)
 # All params in model_preproc_params are optional.
 # If no params are required by the model, then it should be an empty list.
 model_preproc_params = [
     {"name": "use_lincs",
-     #NCK "type": frm.str2bool,
-     "type": str2bool, #NCK
+     "type": str2bool,
      "default": True,
      "help": "Flag to indicate if landmark genes are used for gene selection.",
     },
@@ -117,9 +71,8 @@ model_preproc_params = [
     },
 ]
 
-# Combine the two lists (the combined parameter list will be passed to
-# frm.initialize_parameters() in the main().
-preprocess_params = app_preproc_params + model_preproc_params
+# preprocess_params = app_preproc_params + model_preproc_params
+preprocess_params = model_preproc_params
 # ---------------------
 
 
@@ -128,22 +81,23 @@ def run(params: Dict):
     """ Run data preprocessing.
 
     Args:
-        params (dict): dict of CANDLE/IMPROVE parameters and parsed values.
+        params (dict): dict of IMPROVE/CANDLE parameters and parsed values.
 
     Returns:
         str: directory name that was used to save the preprocessed (generated)
             ML data files.
     """
-    # import pdb; pdb.set_trace()
+    # breakpoint()
+    # from pprint import pprint; pprint(params);
 
     # ------------------------------------------------------
     # [Req] Build paths and create output dir
     # ------------------------------------------------------
     # Build paths for raw_data, x_data, y_data, splits
-    params = frm.build_paths(params)  
+    params = frm.build_paths(params) # TODO do this in improvelib
 
     # Create output dir for model input data (to save preprocessed ML data)
-    frm.create_outdir(outdir=params["ml_data_outdir"])
+    # frm.create_outdir(outdir=params["ml_data_outdir"]) # TODO cfg.initialize_parameters creates params['output_dir']
 
     # ------------------------------------------------------
     # [Req] Load X data (feature representations)
@@ -208,13 +162,13 @@ def run(params: Dict):
 
     # Scale gene expression
     _, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
+    ge_scaler_fpath = Path(params["output_dir"]) / params["ge_scaler_fname"]
     joblib.dump(ge_scaler, ge_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
 
     # Scale Mordred descriptors
     _, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
-    md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
+    md_scaler_fpath = Path(params["output_dir"]) / params["md_scaler_fname"]
     joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
 
@@ -273,7 +227,7 @@ def run(params: Dict):
 
         print("Save data")
         data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
-        data.to_parquet(Path(params["ml_data_outdir"])/data_fname) # saves ML data file to parquet
+        data.to_parquet(Path(params["output_dir"])/data_fname) # saves ML data file to parquet
 
         # Prepare the y dataframe for the current stage
         fea_list = ["ge", "mordred"]
@@ -284,16 +238,23 @@ def run(params: Dict):
         # [Req] Save y dataframe for the current stage
         frm.save_stage_ydf(ydf, params, stage)
 
-    return params["ml_data_outdir"]
+    return params["output_dir"]
 
 
 # [Req]
 def main(args):
     # [Req]
-    cfg = DRPPreprocessConfig() #NCK
     additional_definitions = preprocess_params
-    #NCK params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
-    params = cfg.initialize_parameters(filepath, default_config="lgbm_params.txt", additional_definitions=additional_definitions, required=None) #NCK
+    # params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
+    cfg = DRPPreprocessConfig()
+    params = cfg.initialize_parameters(
+        pathToModelDir=filepath,
+        default_config="lgbm_params.txt",
+        default_model=None,
+        additional_cli_section=None,
+        additional_definitions=additional_definitions,
+        required=None
+    )
     ml_data_outdir = run(params)
     print("\nFinished data preprocessing.")
 
