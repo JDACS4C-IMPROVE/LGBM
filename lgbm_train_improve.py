@@ -59,11 +59,11 @@ model_train_params = [
      "default": -1,
      "help": "Max depth."
     },
-    {"name": "learning_rate",
-     "type": float,
-     "default": 0.1,
-     "help": "Learning rate for the optimizer."
-    },
+    # {"name": "learning_rate", # TODO it's already defined in improvelib
+    #  "type": float,
+    #  "default": 0.1,
+    #  "help": "Learning rate for the optimizer."
+    # },
     {"name": "num_leaves",
      "type": int,
      "default": 31,
@@ -90,8 +90,8 @@ def run(params: Dict):
         dict: prediction performance scores computed on validation data
             according to the metrics_list.
     """
-    # breakpoint()
-    # from pprint import pprint; pprint(params);
+    breakpoint()
+    from pprint import pprint; pprint(params);
 
     # ------------------------------------------------------
     # [Req] Create output dir and build model path
@@ -101,8 +101,8 @@ def run(params: Dict):
     # frm.create_outdir(outdir=params["model_outdir"]) # TODO cfg.initialize_parameters creates params['output_dir'] where the model will be stored
 
     # Build model path
-    # modelpath = frm.build_model_path(params, model_dir=params["model_outdir"])
-    modelpath = frm.build_model_path(params, model_dir=params["output_dir"]) # TODO explore input_dir and output_dir
+    # modelpath = frm.build_model_path(params, model_dir=params["model_outdir"]) # AP
+    modelpath = frm.build_model_path(params, model_dir=params["output_dir"]) # TODO instead of model_outdir
 
     # ------------------------------------------------------
     # [Req] Create data names for train and val sets

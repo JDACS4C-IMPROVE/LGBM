@@ -5,21 +5,21 @@ import subprocess
 import warnings
 from time import time
 from pathlib import Path
+from pprint import pprint
 
 import pandas as pd
 
 # IMPROVE imports
-from improve import framework as frm
+from improvelib.initializer.stage_config import PreprocessConfig, TrainConfig, InferConfig
+from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig
+from improvelib.applications.drug_response_prediction.config import DRPTrainConfig
+from improvelib.applications.drug_response_prediction.config import DRPInferConfig
+import improvelib.utils as frm
 
-# LightGBM imports
-# TODO: change this for your model
+# Model-specific imports (LightGBM)
 import lgbm_preprocess_improve
 import lgbm_train_improve
 import lgbm_infer_improve
-
-# from ap_utils.classlogger import Logger
-# from ap_utils.utils import get_print_func, Timer
-
 
 class Timer:
   """ Measure time. """
@@ -38,37 +38,81 @@ class Timer:
         print_fn("Runtime: {:.1f} mins".format( (time_diff)/60) )
 
 
-fdir = Path(__file__).resolve().parent
+filepath = Path(__file__).resolve().parent
 
-y_col_name = "auc"
-# y_col_name = "auc1"
+# breakpoint()
+# cfg_pp = PreprocessConfig()
+cfg_pp = DRPPreprocessConfig() # TODO submit github issue; too many logs printed; is it necessary?
+params_pp = cfg_pp.initialize_parameters(
+    pathToModelDir=filepath,
+    default_config="csa_params.txt",
+    default_model=None,
+    additional_cli_section=None,
+    additional_definitions=None,
+    required=None
+)
+params_pp = frm.build_paths(params_pp) # TODO this may move to improvelib
 
-maindir = Path(f"./{y_col_name}")
-MAIN_ML_DATA_DIR = Path(f"./{maindir}/ml_data")
-MAIN_MODEL_DIR = Path(f"./{maindir}/models")
-MAIN_INFER_OUTDIR = Path(f"./{maindir}/infer")
-
-# Check that environment variable "IMPROVE_DATA_DIR" has been specified
-if os.getenv("IMPROVE_DATA_DIR") is None:
-    raise Exception("ERROR ! Required system variable not specified.  \
-                    You must define IMPROVE_DATA_DIR ... Exiting.\n")
-os.environ["CANDLE_DATA_DIR"] = os.environ["IMPROVE_DATA_DIR"]
-
-params = frm.initialize_parameters(
-    fdir,
-    default_model="csa_workflow_params.txt",
+# breakpoint()
+# cfg_train = TrainConfig()
+cfg_train = DRPTrainConfig()
+params_train = cfg_train.initialize_parameters(
+    pathToModelDir=filepath,
+    default_config="csa_params.txt",
+    default_model=None,
+    additional_cli_section=None,
+    additional_definitions=None,
+    required=None
 )
 
-main_datadir = Path(os.environ["IMPROVE_DATA_DIR"])
-raw_datadir = main_datadir / params["raw_data_dir"]
-x_datadir = raw_datadir / params["x_data_dir"]
-y_datadir = raw_datadir / params["y_data_dir"]
-splits_dir = raw_datadir / params["splits_dir"]
+# breakpoint()
+# cfg_infer = InferConfig()
+cfg_infer = DRPInferConfig()
+params_infer = cfg_infer.initialize_parameters(
+    pathToModelDir=filepath,
+    default_config="csa_params.txt",
+    default_model=None,
+    additional_cli_section=None,
+    additional_definitions=None,
+    required=None
+)
+
+# breakpoint()
+print("Params preprocess:"); pprint(params_pp)
+print("Params train:"); pprint(params_train)
+print("Params infer:"); pprint(params_infer)
+
+# input_dir_pp = 
+# output_dir_pp = 
+# input_dir_train = 
+# output_dir_train = 
+# input_dir_infer = 
+# output_dir_infer = 
+
+# y_col_name = "auc"
+# y_col_name = "auc1"
+y_col_name = params_pp["y_col_name"] #"auc"
+
+# maindir = Path(f"./{y_col_name}")
+maindir = Path(f"./0_{y_col_name}_improvelib") # main output dir
+# Note! ML data and trained model should be saved to the same dir for inference script
+MAIN_ML_DATA_DIR = maindir / "ml_data" # output_dir_pp, input_dir_train, input_dir_infer
+MAIN_MODEL_DIR = maindir / "models" # output_dir_train, input_dir_infer
+# MAIN_MLDATA_AND_MODEL_DIR = Path(f"./{maindir}/mldata_and_model")
+# MAIN_INFER_OUTDIR = Path(f"./{maindir}/infer") # output_dir infer
+MAIN_INFER_DIR = maindir / "infer" # output_dir infer
+
+# main_datadir = Path(os.environ["IMPROVE_DATA_DIR"])
+# raw_datadir = main_datadir / params["raw_data_dir"]
+# x_datadir = raw_datadir / params["x_data_dir"]
+# y_datadir = raw_datadir / params["y_data_dir"]
+# splits_dir = raw_datadir / params["splits_dir"]
+splits_dir = Path(params_pp["input_dir"]) / params_pp["splits_dir"]
 
 # lg = Logger(main_datadir/"csa.log")
 print_fn = print
 # print_fn = get_print_func(lg.logger)
-print_fn(f"File path: {fdir}")
+print_fn(f"File path: {filepath}")
 
 ### Source and target data sources
 ## Set 1 - full analysis
@@ -116,7 +160,7 @@ timer = Timer()
 print_fn(f"\nsource_datasets: {source_datasets}")
 print_fn(f"target_datasets: {target_datasets}")
 print_fn(f"split_nums:      {split_nums}")
-# import pdb; pdb.set_trace()
+# breakpoint()
 for source_data_name in source_datasets:
 
     # Get the split file paths
@@ -138,6 +182,7 @@ for source_data_name in source_datasets:
     # --------------------
     # Preprocess and Train
     # --------------------
+    # breakpoint()
     for split in split_nums:
         print_fn(f"Split id {split} out of {len(split_nums)} splits.")
         # Check that train, val, and test are available. Otherwise, continue to the next split.
@@ -157,7 +202,11 @@ for source_data_name in source_datasets:
             print_fn(f"\nSource data: {source_data_name}")
             print_fn(f"Target data: {target_data_name}")
 
-            ml_data_outdir = MAIN_ML_DATA_DIR/f"{source_data_name}-{target_data_name}"/f"split_{split}"
+            # ml_data_outdir = MAIN_ML_DATA_DIR/f"{source_data_name}-{target_data_name}"/f"split_{split}" # AP
+            # mldata_and_model_dir = MAIN_MLDATA_AND_MODEL_DIR/f"{source_data_name}-{target_data_name}"/f"split_{split}" # AP
+            ml_data_dir = MAIN_ML_DATA_DIR / f"{source_data_name}-{target_data_name}"/f"split_{split}" # AP
+            model_dir = MAIN_MODEL_DIR / f"{source_data_name}"/f"split_{split}" # AP
+            infer_dir = MAIN_INFER_DIR / f"{source_data_name}-{target_data_name}" / f"split_{split}" # AP
 
             if source_data_name == target_data_name:
                 # If source and target are the same, then infer on the test split
@@ -168,7 +217,7 @@ for source_data_name in source_datasets:
 
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             # p1 (none): Preprocess train data
-            # train_split_files = list((ig.splits_dir).glob(f"{source_data_name}_split_0_train*.txt"))  # TODO: placeholder for lc analysis
+            # train_split_files = list((ig.splits_dir).glob(f"{source_data_name}_split_0_train*.txt"))  # TODO placeholder for lc analysis
             timer_preprocess = Timer()
             # ml_data_path = graphdrp_preprocess_improve.main([
             #     "--train_split_file", f"{source_data_name}_split_{split}_train.txt",
@@ -183,13 +232,16 @@ for source_data_name in source_datasets:
             print_fn(f"train_split_file: {train_split_file}")
             print_fn(f"val_split_file:   {val_split_file}")
             print_fn(f"test_split_file:  {test_split_file}")
-            print_fn(f"ml_data_outdir:   {ml_data_outdir}")
+            # print_fn(f"ml_data_outdir:   {ml_data_outdir}") # AP
+            print_fn(f"ml_data_dir:      {ml_data_dir}") # AP
             preprocess_run = ["python",
                   "lgbm_preprocess_improve.py",
                   "--train_split_file", str(train_split_file),
                   "--val_split_file", str(val_split_file),
                   "--test_split_file", str(test_split_file),
-                  "--ml_data_outdir", str(ml_data_outdir),
+                  # "--ml_data_outdir", str(ml_data_outdir), # AP
+                  "--input_dir", str("./csa_data/raw_data"), # AP
+                  "--output_dir", str(ml_data_dir), # AP
                   "--y_col_name", str(y_col_name)
             ]
             result = subprocess.run(preprocess_run, capture_output=True,
@@ -201,10 +253,11 @@ for source_data_name in source_datasets:
             # p2 (p1): Train model
             # Train a single model for a given [source, split] pair
             # Train using train samples and early stop using val samples
-            model_outdir = MAIN_MODEL_DIR/f"{source_data_name}"/f"split_{split}"
-            if model_outdir.exists() is False:
-                train_ml_data_dir = ml_data_outdir
-                val_ml_data_dir = ml_data_outdir
+            # model_outdir = MAIN_MODEL_DIR/f"{source_data_name}"/f"split_{split}" # AP
+            # if model_outdir.exists() is False: # AP
+            if model_dir.exists() is False: # AP
+                # train_ml_data_dir = ml_data_outdir # AP
+                # val_ml_data_dir = ml_data_outdir # AP
                 timer_train = Timer()
                 # graphdrp_train_improve.main([
                 #     "--train_ml_data_dir", str(train_ml_data_dir),
@@ -215,15 +268,19 @@ for source_data_name in source_datasets:
                 #     # "--cuda_name", "cuda:5"
                 # ])
                 print_fn("\nTrain")
-                print_fn(f"train_ml_data_dir: {train_ml_data_dir}")
-                print_fn(f"val_ml_data_dir:   {val_ml_data_dir}")
-                print_fn(f"model_outdir:      {model_outdir}")
-                # import pdb; pdb.set_trace()
+                # print_fn(f"train_ml_data_dir: {train_ml_data_dir}") # AP
+                # print_fn(f"val_ml_data_dir:   {val_ml_data_dir}") # AP
+                # print_fn(f"model_outdir:      {model_outdir}") # AP
+                print_fn(f"ml_data_dir: {ml_data_dir}") # AP
+                print_fn(f"model_dir:   {model_dir}") # AP
+                # breakpoint()
                 train_run = ["python",
                       "lgbm_train_improve.py",
-                      "--train_ml_data_dir", str(train_ml_data_dir),
-                      "--val_ml_data_dir", str(val_ml_data_dir),
-                      "--model_outdir", str(model_outdir),
+                      # "--train_ml_data_dir", str(train_ml_data_dir), # AP
+                      # "--val_ml_data_dir", str(val_ml_data_dir), # AP
+                      # "--model_outdir", str(model_outdir), # AP
+                      "--input_dir", str(ml_data_dir),
+                      "--output_dir", str(model_dir),
                       "--y_col_name", y_col_name
                 ]
                 result = subprocess.run(train_run, capture_output=True,
@@ -234,9 +291,9 @@ for source_data_name in source_datasets:
 
             # Infer
             # p3 (p1, p2): Inference
-            test_ml_data_dir = ml_data_outdir
-            model_dir = model_outdir
-            infer_outdir = MAIN_INFER_OUTDIR/f"{source_data_name}-{target_data_name}"/f"split_{split}"
+            # test_ml_data_dir = ml_data_outdir # AP
+            # model_dir = model_outdir # AP
+            # infer_outdir = MAIN_INFER_OUTDIR/f"{source_data_name}-{target_data_name}"/f"split_{split}" # AP
             timer_infer = Timer()
             # graphdrp_infer_improve.main([
             #     "--test_ml_data_dir", str(test_ml_data_dir),
@@ -245,13 +302,16 @@ for source_data_name in source_datasets:
             #     # "--cuda_name", "cuda:5"
             # ])
             print_fn("\nInfer")
-            print_fn(f"test_ml_data_dir: {test_ml_data_dir}")
-            print_fn(f"infer_outdir:     {infer_outdir}")
+            # print_fn(f"test_ml_data_dir: {test_ml_data_dir}") # AP
+            # print_fn(f"infer_outdir:     {infer_outdir}") # AP
             infer_run = ["python",
                   "lgbm_infer_improve.py",
-                  "--test_ml_data_dir", str(test_ml_data_dir),
-                  "--model_dir", str(model_dir),
-                  "--infer_outdir", str(infer_outdir),
+                  # "--test_ml_data_dir", str(test_ml_data_dir), # AP
+                  # "--model_dir", str(model_dir), # AP
+                  # "--infer_outdir", str(infer_outdir), # AP
+                  "--input_dir_data", str(ml_data_dir), # AP
+                  "--input_dir_model", str(model_dir), # AP
+                  "--output_dir", str(infer_dir), # AP
                   "--y_col_name", y_col_name
             ]
             result = subprocess.run(infer_run, capture_output=True,

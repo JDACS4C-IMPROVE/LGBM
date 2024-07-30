@@ -94,7 +94,7 @@ def run(params: Dict):
     # [Req] Build paths and create output dir
     # ------------------------------------------------------
     # Build paths for raw_data, x_data, y_data, splits
-    params = frm.build_paths(params) # TODO do this in improvelib
+    params = frm.build_paths(params) # TODO do this in improvelib (submit issue)
 
     # Create output dir for model input data (to save preprocessed ML data)
     # frm.create_outdir(outdir=params["ml_data_outdir"]) # TODO cfg.initialize_parameters creates params['output_dir']

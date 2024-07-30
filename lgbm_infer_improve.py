@@ -76,8 +76,11 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Load model input data (ML data)
     # ------------------------------------------------------
-    # te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname)
-    te_data = pd.read_parquet(Path(params["input_dir"])/test_data_fname) # TODO explore input_dir and output_dir
+    # te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname) # AP
+    if "input_dir_data" in params:
+        te_data = pd.read_parquet(Path(params["input_dir_data"])/test_data_fname)
+    else:
+        te_data = pd.read_parquet(Path(params["input_dir"])/test_data_fname)
 
     fea_list = ["ge", "mordred"]
     fea_sep = "."
@@ -92,8 +95,11 @@ def run(params: Dict):
     # Load best model and compute predictions
     # ------------------------------------------------------
     # Build model path
-    # modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # [Req]
-    modelpath = frm.build_model_path(params, model_dir=params["input_dir"]) # TODO explore input_dir and output_dir
+    # modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # AP
+    if "input_dir_model" in params:
+        modelpath = frm.build_model_path(params, model_dir=params["input_dir_model"])
+    else:
+        modelpath = frm.build_model_path(params, model_dir=params["input_dir"])
 
     # Load LightGBM
     model = lgb.Booster(model_file=str(modelpath))
@@ -108,8 +114,8 @@ def run(params: Dict):
     frm.store_predictions_df(
         params,
         y_true=test_true, y_pred=test_pred, stage="test",
-        # outdir=params["infer_outdir"]
-        outdir=params["output_dir"] # TODO explore input_dir and output_dir
+        # outdir=params["infer_outdir"] # AP
+        outdir=params["output_dir"] # TODO instead of infer_outdir
     )
 
     # ------------------------------------------------------
@@ -118,8 +124,8 @@ def run(params: Dict):
     test_scores = frm.compute_performace_scores(
         params,
         y_true=test_true, y_pred=test_pred, stage="test",
-        # outdir=params["infer_outdir"], metrics=metrics_list
-        outdir=params["output_dir"], # TODO explore input_dir and output_dir
+        # outdir=params["infer_outdir"], # AP
+        outdir=params["output_dir"], # TODO instead of infer_outdir
         metrics=metrics_list
     )
 
