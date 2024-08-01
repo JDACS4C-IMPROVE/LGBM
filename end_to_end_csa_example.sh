@@ -25,7 +25,7 @@ SPLIT=0
 # ---------------
 
 SOURCE=CCLE
-TARGET=CCLE
+TARGET=$SOURCE
 
 # Single dir
 MLDATA_AND_MODEL_DIR=./res_same_dir/${SOURCE}-${TARGET}/split_${SPLIT}

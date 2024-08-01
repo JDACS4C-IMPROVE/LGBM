@@ -10,7 +10,7 @@ import pandas as pd
 # IMPROVE/CANDLE imports
 # from improve import framework as frm
 # from improve.csa import cross_study_postprocess
-from improvelib.workflow_utils.cross_study.csa_utils import csa_postprocess
+from improvelib.workflow_utils.cross_study.csa_utils import csa_postprocess, plot_color_coded_csa_table
 
 
 # Imports from preprocess script
@@ -31,13 +31,20 @@ res_dir = args.res_dir
 model_name = args.model_name
 y_col_name = args.y_col_name
 
-breakpoint()
 res_dir_path = filepath / res_dir
-outdir = res_dir_path / f"../res.csa.{model_name}.{res_dir}"
+outdir = res_dir_path / f'../res.csa.{model_name}.{res_dir}'
 
 scores = csa_postprocess(res_dir_path,
                          model_name,
                          y_col_name,
                          outdir=outdir)
+
 # breakpoint()
-print("\nFinished cross-study post-processing.")
+# scores_filename = Path('r2_mean_csa_table.csv')
+# df = pd.read_csv(outdir / scores_filename)
+# image_filepath = outdir / scores_filename.with_suffix('.png') # "csa_plot_new.png"
+# plot_color_coded_csa_table(df, filepath=image_filepath,
+#                            title=scores_filename.with_suffix(''))
+
+# breakpoint()
+print('\nFinished cross-study post-processing.')

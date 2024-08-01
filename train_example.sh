@@ -12,7 +12,7 @@ SPLIT=0
 
 # # Legacy
 # SOURCE=CCLE
-# TARGET=CCLE
+# TARGET=$SOURCE
 # python lgbm_train_improve.py \
 #     --train_ml_data_dir ml_data/${SOURCE}-${TARGET}/split_${SPLIT} \
 #     --val_ml_data_dir ml_data/${SOURCE}-${TARGET}/split_${SPLIT} \
@@ -51,4 +51,3 @@ python lgbm_train_improve.py \
     --output_dir $MODEL_DIR
     # --input_dir ./res/${SOURCE}-${TARGET}/split_${SPLIT} \
     # --output_dir ./res/${SOURCE}-${TARGET}/split_${SPLIT}
-

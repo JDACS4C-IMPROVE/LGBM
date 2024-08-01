@@ -25,7 +25,7 @@ SPLIT=0
 # ---------------
 
 SOURCE=CCLE
-TARGET=CCLE
+TARGET=$SOURCE
 
 # Separate dirs
 ML_DATA_DIR=./res_diff_dirs/ml_data/${SOURCE}-${TARGET}/split_${SPLIT}
@@ -47,8 +47,8 @@ python lgbm_train_improve.py \
 
 # Infer (improvelib)
 python lgbm_infer_improve.py \
-    --input_dir_data $ML_DATA_DIR\
-    --input_dir_model $MODEL_DIR\
+    --input_data_dir $ML_DATA_DIR\
+    --input_model_dir $MODEL_DIR\
     --output_dir $INFER_DIR
 
 
@@ -79,6 +79,6 @@ python lgbm_train_improve.py \
 
 # Infer (improvelib)
 python lgbm_infer_improve.py \
-    --input_dir_data $ML_DATA_DIR\
-    --input_dir_model $MODEL_DIR\
+    --input_data_dir $ML_DATA_DIR\
+    --input_model_dir $MODEL_DIR\
     --output_dir $INFER_DIR

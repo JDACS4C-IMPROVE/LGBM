@@ -77,10 +77,10 @@ def run(params: Dict):
     # Load model input data (ML data)
     # ------------------------------------------------------
     # te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname) # AP
-    if "input_dir_data" in params:
-        te_data = pd.read_parquet(Path(params["input_dir_data"])/test_data_fname)
+    if "input_data_dir" in params:
+        te_data = pd.read_parquet(Path(params["input_data_dir"]) / test_data_fname)
     else:
-        te_data = pd.read_parquet(Path(params["input_dir"])/test_data_fname)
+        te_data = pd.read_parquet(Path(params["input_dir"]) / test_data_fname)
 
     fea_list = ["ge", "mordred"]
     fea_sep = "."
@@ -96,8 +96,8 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Build model path
     # modelpath = frm.build_model_path(params, model_dir=params["model_dir"]) # AP
-    if "input_dir_model" in params:
-        modelpath = frm.build_model_path(params, model_dir=params["input_dir_model"])
+    if "input_model_dir" in params:
+        modelpath = frm.build_model_path(params, model_dir=params["input_model_dir"])
     else:
         modelpath = frm.build_model_path(params, model_dir=params["input_dir"])
 

@@ -12,7 +12,7 @@ SPLIT=0
 
 # # Legacy
 # SOURCE=CCLE
-# TARGET=CCLE
+# TARGET=$SOURCE
 # python lgbm_infer_improve.py \
 #     --test_ml_data_dir ml_data/${SOURCE}-${TARGET}/split_${SPLIT} \
 #     --model_dir out_model/${SOURCE}/split_${SPLIT} \
@@ -20,13 +20,13 @@ SPLIT=0
 
 # improvelib
 SOURCE=CCLE
-TARGET=CCLE
+TARGET=$SOURCE
 ML_DATA_DIR=./res/ml_data/${SOURCE}-${TARGET}/split_${SPLIT}
 MODEL_DIR=./res/models/${SOURCE}/split_${SPLIT}
 INFER_DIR=./res/infer/${SOURCE}-${TARGET}/split_${SPLIT}
 python lgbm_infer_improve.py \
-    --input_dir_data $ML_DATA_DIR\
-    --input_dir_model $MODEL_DIR\
+    --input_data_dir $ML_DATA_DIR\
+    --input_model_dir $MODEL_DIR\
     --output_dir $INFER_DIR
     # --input_dir ./res/${SOURCE}-${TARGET}/split_${SPLIT} \
     # --output_dir ./res/${SOURCE}-${TARGET}/split_${SPLIT}
@@ -50,9 +50,8 @@ ML_DATA_DIR=./res/ml_data/${SOURCE}-${TARGET}/split_${SPLIT}
 MODEL_DIR=./res/models/${SOURCE}/split_${SPLIT}
 INFER_DIR=./res/infer/${SOURCE}-${TARGET}/split_${SPLIT}
 python lgbm_infer_improve.py \
-    --input_dir_data $ML_DATA_DIR\
-    --input_dir_model $MODEL_DIR\
+    --input_data_dir $ML_DATA_DIR\
+    --input_model_dir $MODEL_DIR\
     --output_dir $INFER_DIR
     # --input_dir ./res/${SOURCE}-${TARGET}/split_${SPLIT} \
     # --output_dir ./res/${SOURCE}-${TARGET}/split_${SPLIT}
-

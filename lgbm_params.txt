@@ -15,7 +15,8 @@ scaling = std
 [Train]
 model_file_name = model
 model_file_format = .txt
-learning_rate = 0.1
+learning_rate = 0.05
+n_estimators = 800
 
 [Infer]
 model_file_name = model
