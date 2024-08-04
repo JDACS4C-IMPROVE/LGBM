@@ -2,9 +2,9 @@
 model_name = "LGBM"
 
 [Preprocess]
-train_split_file = "CCLE_split_0_train.txt"
-val_split_file = "CCLE_split_0_val.txt"
-test_split_file = "CCLE_split_0_test.txt"
+train_split_file = "GDSCv1_split_4_train.txt"
+val_split_file = "GDSCv1_split_4_val.txt"
+test_split_file = "GDSCv1_split_4_test.txt"
 ml_data_outdir = "./ml_data/CCLE-CCLE/split_0"
 data_format = ".parquet"
 y_data_files = [["response.tsv"]]
