@@ -121,21 +121,23 @@ def run(params: Dict):
     # ------------------------------------------------------
     # [Req] Compute performance scores
     # ------------------------------------------------------
-    test_scores = frm.compute_performace_scores(
-        params,
-        y_true=test_true, y_pred=test_pred, stage="test",
-        # outdir=params["infer_outdir"], # AP
-        outdir=params["output_dir"], # TODO instead of infer_outdir
-        metrics=metrics_list
-    )
+    if params["calc_infer_scores"]:
+        test_scores = frm.compute_performace_scores(
+            params,
+            y_true=test_true, y_pred=test_pred, stage="test",
+            # outdir=params["infer_outdir"], # AP
+            outdir=params["output_dir"], # TODO instead of infer_outdir
+            metrics=metrics_list
+        )
 
-    return test_scores
+    return True
 
 
 # [Req]
 def main(args):
     # [Req]
-    additional_definitions = preprocess_params + train_params + infer_params
+    # additional_definitions = preprocess_params + train_params + infer_params
+    additional_definitions = infer_params
     # params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
     cfg = DRPInferConfig()
     params = cfg.initialize_parameters(
@@ -145,7 +147,7 @@ def main(args):
         additional_cli_section=None,
         additional_definitions=additional_definitions,
         required=None)
-    test_scores = run(params)
+    status = run(params)
     print("\nFinished model inference.")
 
 

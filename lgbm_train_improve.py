@@ -195,7 +195,8 @@ def initialize_parameters(params=None):
         dict: dict of IMPROVE/CANDLE parameters and parsed values.
     """
     # [Req] Additional definitions
-    additional_definitions = preprocess_params + train_params
+    # additional_definitions = preprocess_params + train_params
+    additional_definitions = train_params
 
     # [Req] Initialize parameters
     params = frm.initialize_parameters(
@@ -213,7 +214,8 @@ def main(args):
     # [Req]
     cfg = DRPTrainConfig()
     # params = frm.initialize_parameters(filepath, default_model="lgbm_params.txt", additional_definitions=additional_definitions, required=None)
-    additional_definitions = preprocess_params + train_params
+    # additional_definitions = preprocess_params + train_params
+    additional_definitions = train_params
     params = cfg.initialize_parameters(
         pathToModelDir=filepath,
         default_config="lgbm_params.txt",

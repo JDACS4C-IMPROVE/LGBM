@@ -49,7 +49,8 @@ python lgbm_train_improve.py \
 python lgbm_infer_improve.py \
     --input_data_dir $ML_DATA_DIR\
     --input_model_dir $MODEL_DIR\
-    --output_dir $INFER_DIR
+    --output_dir $INFER_DIR \
+    --calc_infer_score true
 
 
 # ----------------------------------------
@@ -81,4 +82,5 @@ python lgbm_train_improve.py \
 python lgbm_infer_improve.py \
     --input_data_dir $ML_DATA_DIR\
     --input_model_dir $MODEL_DIR\
-    --output_dir $INFER_DIR
+    --output_dir $INFER_DIR \
+    --calc_infer_score true

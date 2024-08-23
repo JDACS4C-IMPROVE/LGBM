@@ -45,8 +45,12 @@ python lgbm_train_improve.py \
 
 # Infer (improvelib)
 python lgbm_infer_improve.py \
-    --input_dir $MLDATA_AND_MODEL_DIR \
-    --output_dir $MLDATA_AND_MODEL_DIR
+    --input_data_dir $MLDATA_AND_MODEL_DIR \
+    --input_model_dir $MLDATA_AND_MODEL_DIR \
+    --output_dir $MLDATA_AND_MODEL_DIR \
+    --calc_infer_score true
+    # --input_dir $MLDATA_AND_MODEL_DIR \
+    # --output_dir $MLDATA_AND_MODEL_DIR
 
 
 # ----------------------------------------
@@ -74,5 +78,9 @@ python lgbm_train_improve.py \
 
 # Infer (improvelib)
 python lgbm_infer_improve.py \
-    --input_dir $MLDATA_AND_MODEL_DIR \
-    --output_dir $MLDATA_AND_MODEL_DIR
+    --input_data_dir $MLDATA_AND_MODEL_DIR \
+    --input_model_dir $MLDATA_AND_MODEL_DIR \
+    --output_dir $MLDATA_AND_MODEL_DIR \
+    --calc_infer_score true
+    # --input_dir $MLDATA_AND_MODEL_DIR \
+    # --output_dir $MLDATA_AND_MODEL_DIR
