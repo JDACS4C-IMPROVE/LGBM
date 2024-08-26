@@ -77,45 +77,40 @@ cd LGBM
 git checkout develop
 ```
 
-### 2. Download CSA data
+### 2. Create computational environment
+Option 1: create conda env using `yml`
 ```
-sh ./download_csa.sh
+conda env create -f conda_env_lgbm_py37.yml 
 ```
-This will download the cross-study analysis benchmark data into `./csa_data/`.
 
-### 3. Set up the environment
+Option 2: check [conda_env_py37.sh](./conda_env.sh)
 
-Install dependencies:
-```bash
-conda create -n lgbm_py37 python=3.7 pip lightgbm=3.1.1 --yes
-conda activate lgbm_py37
-pip install pyarrow==12.0.1
+Option 3: use these commands
+```
+CONDA_ENV_NAME=lgbm_drp_py37
+conda create -n $CONDA_ENV_NAME python=3.7 pip lightgbm=3.1.1 --yes
+conda activate $CONDA_ENV_NAME
+conda install conda-forge::pyarrow
 pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```
 
-Clone the `IMPROVE library` (outside of the LGBM folder):
-```bash
-cd ..
-git clone https://github.com/JDACS4C-IMPROVE/IMPROVE
-cd IMPROVE
-git checkout develop
-export MY_PATH_TO_IMPROVE=`pwd`
-cd ..
-```
 
-Set the required environment variables to point towards the location of the data folder and `IMPROVE library`:
+### 3. Run `setup_improve.sh`.
 ```bash
-cd LGBM
-export IMPROVE_DATA_DIR="./csa_data/"
-export PYTHONPATH=$PYTHONPATH:${MY_PATH_TO_IMPROVE}
+source setup_improve.sh
 ```
+This will:
+1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
+2. Clone IMPROVE repo (checkout tag `v0.0.3-beta`) outside the model repo
+3. Set up env variables: `IMPROVE_DATA_DIR` (to `./csa_data/`) and `PYTHONPATH` (adds IMPROVE repo).
+
 
 ### 4. Preprocess CSA data (_raw data_) to construct model input data (_ML data_)
 ```bash
 python lgbm_preprocess_improve.py
 ```
 
-Preprocesses the CSA data into train, validation (val), and test datasets. 
+Preprocesses the CSA data and create train, validation (val), and test datasets. 
 
 Generates:
 * three model input data files: `train_data.parquet`, `val_data.parquet`, `test_data.parquet`
@@ -135,6 +130,7 @@ ml_data
         └── x_data_mordred_scaler.gz
 ```
 
+
 ### 5. Train LightGBM model
 ```bash
 python lgbm_train_improve.py
@@ -153,6 +149,7 @@ out_models
         ├── val_scores.json
         └── val_y_data_predicted.csv
 ```
+
 
 ### 6. Run inference on test data with trained LightGBM model
 ```bash
