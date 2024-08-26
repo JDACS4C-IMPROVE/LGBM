@@ -133,3 +133,4 @@ dmypy.json
 out*
 csa_data*
 ml_data/
+res*/
