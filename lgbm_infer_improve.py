@@ -70,7 +70,6 @@ def run(params: Dict):
         dict: prediction performance scores computed on test data according
             to the metrics_list.
     """
-    # import ipdb; ipdb.set_trace()
 
     # ------------------------------------------------------
     # [Req] Create output dir
@@ -137,10 +136,7 @@ def main(args):
     params = frm.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
         additional_definitions=additional_definitions,
-        # required=req_infer_params,
         required=None,
     )
     test_scores = run(params)

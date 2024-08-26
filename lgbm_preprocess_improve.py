@@ -127,7 +127,6 @@ def run(params: Dict):
         str: directory name that was used to save the preprocessed (generated)
             ML data files.
     """
-    # import pdb; pdb.set_trace()
 
     # ------------------------------------------------------
     # [Req] Build paths and create output dir
@@ -285,8 +284,6 @@ def main(args):
     params = frm.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
-        # default_model="params_ws.txt",
-        # default_model="params_cs.txt",
         additional_definitions=additional_definitions,
         required=None,
     )

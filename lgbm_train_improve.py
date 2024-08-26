@@ -100,7 +100,6 @@ def run(params: Dict):
         dict: prediction performance scores computed on validation data
             according to the metrics_list.
     """
-    # import pdb; pdb.set_trace()
 
     # ------------------------------------------------------
     # [Req] Create output dir and build model path
@@ -218,10 +217,7 @@ def main(args):
     params = frm.initialize_parameters(
         filepath,
         default_model="lgbm_params.txt",
-        # default_model="lgbm_params_ws.txt",
-        # default_model="lgbm_params_cs.txt",
         additional_definitions=additional_definitions,
-        # required=req_train_params,
         required=None,
     )
     val_scores = run(params)
