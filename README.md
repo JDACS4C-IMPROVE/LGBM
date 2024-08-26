@@ -110,7 +110,7 @@ This will:
 python lgbm_preprocess_improve.py
 ```
 
-Preprocesses the CSA data and create train, validation (val), and test datasets. 
+Preprocesses the CSA data and creates train, validation (val), and test datasets. 
 
 Generates:
 * three model input data files: `train_data.parquet`, `val_data.parquet`, `test_data.parquet`
@@ -151,12 +151,12 @@ out_models
 ```
 
 
-### 6. Run inference on test data with trained LightGBM model
+### 6. Run inference on test data with teh trained LightGBM model
 ```bash
 python lgbm_infer_improve.py
 ```
 
-Evaluates the performance of a test dataset with the trained model.
+Evaluates the performance on a test dataset with the trained model.
 
 Generates:
 * predictions on test data (tabular data): `test_y_data_predicted.csv`
