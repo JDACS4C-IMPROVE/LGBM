@@ -72,18 +72,18 @@ csa_data/raw_data/
 
 ### 1. Clone the model repository
 ```
-git clone https://github.com/JDACS4C-IMPROVE/LGBM
+git clone git@github.com:JDACS4C-IMPROVE/LGBM.git
 cd LGBM
 git checkout develop
 ```
 
-### 2. Create computational environment
+### 2. Set computational environment
 Option 1: create conda env using `yml`
 ```
 conda env create -f conda_env_lgbm_py37.yml 
 ```
 
-Option 2: check [conda_env_py37.sh](./conda_env.sh)
+Option 2: check [conda_env_py37.sh](./conda_env_py37.sh)
 
 Option 3: use these commands
 ```
@@ -99,22 +99,23 @@ pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```bash
 source setup_improve.sh
 ```
+
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
-2. Clone IMPROVE repo (checkout tag `v0.0.3-beta`) outside the model repo
+2. Clone IMPROVE repo (checkout tag `v0.0.3-beta`) outside the LGBM model repo
 3. Set up env variables: `IMPROVE_DATA_DIR` (to `./csa_data/`) and `PYTHONPATH` (adds IMPROVE repo).
 
 
-### 4. Preprocess CSA data (_raw data_) to construct model input data (_ML data_)
+### 4. Preprocess CSA benchmark data (_raw data_) to construct model input data (_ML data_)
 ```bash
 python lgbm_preprocess_improve.py
 ```
 
-Preprocesses the CSA data and creates train, validation (val), and test datasets. 
+Preprocesses the CSA data and creates train, validation (val), and test datasets.
 
 Generates:
 * three model input data files: `train_data.parquet`, `val_data.parquet`, `test_data.parquet`
-* three y data files, each containing the drug response values (i.e. AUC) and corresponding metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
+* three tabular data files, each containing the drug response values (i.e. AUC) and corresponding metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
 
 ```
 ml_data
@@ -135,7 +136,8 @@ ml_data
 ```bash
 python lgbm_train_improve.py
 ```
-Trains a LightGBM model using the ML data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
+
+Trains a LightGBM model using the model input data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
 
 Generates:
 * trained model: `model.txt`
@@ -151,7 +153,7 @@ out_models
 ```
 
 
-### 6. Run inference on test data with teh trained LightGBM model
+### 6. Run inference on test data with the trained LightGBM model
 ```bash
 python lgbm_infer_improve.py
 ```
