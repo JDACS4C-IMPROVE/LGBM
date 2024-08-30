@@ -74,7 +74,7 @@ csa_data/raw_data/
 ```
 git clone git@github.com:JDACS4C-IMPROVE/LGBM.git
 cd LGBM
-git checkout develop
+git checkout v0.0.3-beta
 ```
 
 ### 2. Set computational environment
