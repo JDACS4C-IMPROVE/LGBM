@@ -1,34 +1,31 @@
 # LGBM
 
-This repository demonstrates the use of the [IMPROVE library](https://github.com/JDACS4C-IMPROVE/IMPROVE) for drug response prediction (DRP) with LightGBM (LGBM) and the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
+This repository demonstrates how to use the [IMPROVE library v0.1.0-alpha](https://jdacs4c-improve.github.io/docs/v0.1.0-alpha/) for building a drug response prediction (DRP) model using LightGBM (LGBM), and provides examples with the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
-A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/docs/content/unified_interface.html). 
+This version, tagged as `v0.1.0-alpha`, introduces a new API which is designed to encourage broader adoption of IMPROVE and its curated models by the research community.
+
+A more detailed tutorial can be found HERE (`TODO!`).
+
 
 
 ## Dependencies
-Check [conda_env.sh](conda_env.sh)
+Installation instuctions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
+
+Conda `yml` file [conda_env.sh](./conda_env.sh)
 
 ML framework:
-+ [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning model
-+ [pyarrow](https://anaconda.org/conda-forge/pyarrow) - saves and loads parquet files
++ [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
++ [pyarrow](https://anaconda.org/conda-forge/pyarrow) - save and load parquet files
 
-IMPROVE LIB:
-+ [IMPROVE](https://github.com/JDACS4C-IMPROVE/IMPROVE) - contains scripts specific for the IMPROVE project
-+ [candle-lib](https://github.com/ECP-CANDLE/candle_lib) - enables various hyperparameter optimization (HPO) schemes and automatically distributes the workload across available computing resources
-
-
-## Source codes
-+ `lgbm_preprocess_improve.py`: creates data files for the DRP model
-+ `lgbm_train_improve.py`: trains a DRP model using LightGBM
-+ `lgbm_infer_improve.py`: runs inference with the trained LightGBM model
-+ `lgbm_params.txt`: parameter file
+IMPROVE dependencies:
++ [IMPROVE v0.1.0-alpha](https://jdacs4c-improve.github.io/docs/v0.1.0-alpha/)
 
 
-# Dataset
-Benchmark data for CSA can be downloaded from this [site](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
-The required data tree is shown below:
+## Dataset
+Benchmark data for cross-study analysis (CSA) can be downloaded from this [site](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
+The data tree is shown below:
 ```
 csa_data/raw_data/
 ├── splits
@@ -61,58 +58,63 @@ csa_data/raw_data/
     └── response.tsv
 ```
 
-# Step-by-step running
 
-### 1. Clone the repository
+
+## Model scripts and parameter file
++ `lgbm_preprocess_improve.py` - takes benchmark data files and transforms into files for trianing and inference
++ `lgbm_train_improve.py` - trains a LightGBM-based DRP model
++ `lgbm_infer_improve.py` - runs inference with the trained LightGBM model
++ `lgbm_params.txt` - default parameter file
+
+
+
+# Step-by-step instructions
+
+### 1. Clone the model repository
 ```
-git clone https://github.com/JDACS4C-IMPROVE/LGBM
+git clone git@github.com:JDACS4C-IMPROVE/LGBM.git
 cd LGBM
 git checkout develop
 ```
 
-### 2. Download CSA data
+### 2. Set computational environment
+Option 1: create conda env using `yml`
 ```
-sh ./download_csa.sh
+conda env create -f conda_env_lgbm_py37.yml 
 ```
-This will download the cross-study analysis benchmark data into `./csa_data/`.
 
-### 3. Set up the environment
+Option 2: check [conda_env_py37.sh](./conda_env_py37.sh)
 
-Install dependencies:
-```bash
-conda create -n lgbm_py37 python=3.7 pip lightgbm=3.1.1 --yes
-conda activate lgbm_py37
-pip install pyarrow==12.0.1
+Option 3: use these commands
+```
+CONDA_ENV_NAME=lgbm_drp_py37
+conda create -n $CONDA_ENV_NAME python=3.7 pip lightgbm=3.1.1 --yes
+conda activate $CONDA_ENV_NAME
+conda install conda-forge::pyarrow
 pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```
 
-Clone the `IMPROVE library` (outside of the LGBM folder):
+### 3. Run `setup_improve.sh`.
 ```bash
-cd ..
-git clone https://github.com/JDACS4C-IMPROVE/IMPROVE
-cd IMPROVE
-git checkout develop
-export MY_PATH_TO_IMPROVE=`pwd`
-cd ..
+source setup_improve.sh
 ```
 
-Set the required environment variables to point towards the location of the data folder and `IMPROVE library`:
-```bash
-cd LGBM
-export IMPROVE_DATA_DIR="./csa_data/"
-export PYTHONPATH=$PYTHONPATH:${MY_PATH_TO_IMPROVE}
-```
+This will:
+1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
+2. Clone IMPROVE repo (checkout tag `v0.1.0-alpha`) outside the LGBM model repo.
+3. Set up env variables: `IMPROVE_DATA_DIR` (to `./csa_data/`) and `PYTHONPATH` (adds IMPROVE repo).
 
-### 4. Preprocess CSA data (_raw data_) to construct model input data (_ML data_)
+
+### 4. Preprocess CSA benchmark data (_raw data_) to construct model input data (_ML data_)
 ```bash
 python lgbm_preprocess_improve.py
 ```
 
-Preprocesses the CSA data into train, validation (val), and test datasets. 
+Preprocesses the CSA data and creates train, validation (val), and test datasets.
 
 Generates:
 * three model input data files: `train_data.parquet`, `val_data.parquet`, `test_data.parquet`
-* three y data files, each containing the drug response values (i.e. AUC) and corresponding metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
+* three tabular data files, each containing the drug response values (i.e. AUC) and corresponding metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
 
 ```
 ml_data
@@ -128,11 +130,13 @@ ml_data
         └── x_data_mordred_scaler.gz
 ```
 
+
 ### 5. Train LightGBM model
 ```bash
 python lgbm_train_improve.py
 ```
-Trains a LightGBM model using the ML data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
+
+Trains a LightGBM model using the model input data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
 
 Generates:
 * trained model: `model.txt`
@@ -147,12 +151,13 @@ out_models
         └── val_y_data_predicted.csv
 ```
 
-### 6. Run inference on test data with trained LightGBM model
+
+### 6. Run inference on test data with the trained LightGBM model
 ```bash
 python lgbm_infer_improve.py
 ```
 
-Evaluates the performance of a test dataset with the trained model.
+Evaluates the performance on a test dataset with the trained model.
 
 Generates:
 * predictions on test data (tabular data): `test_y_data_predicted.csv`
