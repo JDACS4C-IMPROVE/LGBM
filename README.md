@@ -11,7 +11,7 @@ A more detailed tutorial can be found HERE (`TODO!`).
 ## Dependencies
 Installation instuctions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
 
-Conda `yml` file [conda_env_py37.sh](./conda_env_py37.sh)
+Conda `yml` file [conda_env_lambda_py37.yml](./conda_env_lambda_py37.yml)
 
 ML framework:
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
