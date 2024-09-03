@@ -13,11 +13,13 @@ use_lincs = True
 scaling = std
 
 [Train]
+data_format = .parquet
 model_file_name = model
 model_file_format = .txt
 learning_rate = 0.05
 n_estimators = 800
 
 [Infer]
+data_format = .parquet
 model_file_name = model
 model_file_format = .txt
