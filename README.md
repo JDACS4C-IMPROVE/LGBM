@@ -11,7 +11,7 @@ A more detailed tutorial can be found HERE (`TODO!`).
 ## Dependencies
 Installation instuctions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
 
-Conda `yml` file [conda_env.sh](./conda_env.sh)
+Conda `yml` file [conda_env_py37.sh](./conda_env_py37.sh)
 
 ML framework:
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
@@ -80,7 +80,7 @@ git checkout develop
 ### 2. Set computational environment
 Option 1: create conda env using `yml`
 ```
-conda env create -f conda_env_lgbm_py37.yml 
+conda env create -f conda_env_lambda_py37.yml
 ```
 
 Option 2: check [conda_env_py37.sh](./conda_env_py37.sh)
