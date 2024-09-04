@@ -101,7 +101,7 @@ source setup_improve.sh
 
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
-2. Clone IMPROVE repo (checkout tag `v0.1.0-alpha`) outside the LGBM model repo.
+2. Clone IMPROVE repo (checkout `develop`) outside the LGBM model repo.
 3. Set up env variables: `IMPROVE_DATA_DIR` (to `./csa_data/`) and `PYTHONPATH` (adds IMPROVE repo).
 
 
