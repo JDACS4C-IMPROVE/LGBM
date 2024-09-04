@@ -121,24 +121,25 @@ def run(params: Dict):
     val_pred = model.predict(xvl)
     val_true = yvl.values.squeeze()
    
-    # ------------------------------------------------------
+     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
     # ------------------------------------------------------
     frm.store_predictions_df(
-        params,
-        y_true=val_true, y_pred=val_pred, stage="val",
-        outdir=params["output_dir"]
-    )
+        y_true=val_true, 
+        y_pred=val_pred, 
+        stage="val",
+        y_col_name=params["y_col_name"],
+        output_dir=params["output_dir"])
 
     # ------------------------------------------------------
     # [Req] Compute performance scores
     # ------------------------------------------------------
-    val_scores = frm.compute_performace_scores(
-        params,
-        y_true=val_true, y_pred=val_pred, stage="val",
-        outdir=params["output_dir"],
-        metrics=metrics_list
-    )
+    val_scores = frm.compute_performance_scores(
+        y_true=val_true, 
+        y_pred=val_pred, 
+        stage="val",
+        metric_type=params["metric_type"],
+        output_dir=params["output_dir"])
 
     return val_scores
 
