@@ -92,7 +92,6 @@ CONDA_ENV_NAME=lgbm_drp_py37
 conda create -n $CONDA_ENV_NAME python=3.7 pip lightgbm=3.1.1 --yes
 conda activate $CONDA_ENV_NAME
 conda install conda-forge::pyarrow
-pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```
 
 ### 3. Run `setup_improve.sh`.
