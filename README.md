@@ -64,6 +64,7 @@ csa_data/raw_data/
 + `lgbm_preprocess_improve.py` - takes benchmark data files and transforms into files for trianing and inference
 + `lgbm_train_improve.py` - trains a LightGBM-based DRP model
 + `lgbm_infer_improve.py` - runs inference with the trained LightGBM model
++ `model_params_def.py` - definitions of parameter specific to the model
 + `lgbm_params.txt` - default parameter file
 
 
