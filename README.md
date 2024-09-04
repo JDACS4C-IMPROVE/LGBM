@@ -107,7 +107,7 @@ This will:
 
 ### 4. Preprocess CSA benchmark data (_raw data_) to construct model input data (_ML data_)
 ```bash
-python lgbm_preprocess_improve.py
+python lgbm_preprocess_improve.py --input_dir ./csa_data/raw_data --output_dir exp_result
 ```
 
 Preprocesses the CSA data and creates train, validation (val), and test datasets.
@@ -117,23 +117,22 @@ Generates:
 * three tabular data files, each containing the drug response values (i.e. AUC) and corresponding metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
 
 ```
-ml_data
-└── CCLE-CCLE
-    └── split_0
-        ├── test_data.parquet
-        ├── test_y_data.csv
-        ├── train_data.parquet
-        ├── train_y_data.csv
-        ├── val_data.parquet
-        ├── val_y_data.csv
-        ├── x_data_gene_expression_scaler.gz
-        └── x_data_mordred_scaler.gz
+exp_result
+├── param_log_file.txt
+├── test_data.parquet
+├── test_y_data.csv
+├── train_data.parquet
+├── train_y_data.csv
+├── val_data.parquet
+├── val_y_data.csv
+├── x_data_gene_expression_scaler.gz
+└── x_data_mordred_scaler.gz
 ```
 
 
 ### 5. Train LightGBM model
 ```bash
-python lgbm_train_improve.py
+python lgbm_train_improve.py --input_dir exp_result --output_dir exp_result
 ```
 
 Trains a LightGBM model using the model input data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
@@ -143,18 +142,25 @@ Generates:
 * predictions on val data (tabular data): `val_y_data_predicted.csv`
 * prediction performance scores on val data: `val_scores.json`
 ```
-out_models
-└── CCLE
-    └── split_0
-        ├── model.txt
-        ├── val_scores.json
-        └── val_y_data_predicted.csv
+exp_result
+├── model.txt
+├── param_log_file.txt
+├── test_data.parquet
+├── test_y_data.csv
+├── train_data.parquet
+├── train_y_data.csv
+├── val_data.parquet
+├── val_scores.json
+├── val_y_data.csv
+├── val_y_data_predicted.csv
+├── x_data_gene_expression_scaler.gz
+└── x_data_mordred_scaler.gz
 ```
 
 
 ### 6. Run inference on test data with the trained LightGBM model
 ```bash
-python lgbm_infer_improve.py
+python lgbm_infer_improve.py --input_data_dir exp_result --input_model_dir exp_result --output_dir exp_result --calc_infer_score true
 ```
 
 Evaluates the performance on a test dataset with the trained model.
@@ -163,9 +169,19 @@ Generates:
 * predictions on test data (tabular data): `test_y_data_predicted.csv`
 * prediction performance scores on test data: `test_scores.json`
 ```
-out_infer
-└── CCLE-CCLE
-    └── split_0
-        ├── test_scores.json
-        └── test_y_data_predicted.csv
+exp_result
+├── model.txt
+├── param_log_file.txt
+├── test_data.parquet
+├── test_scores.json
+├── test_y_data.csv
+├── test_y_data_predicted.csv
+├── train_data.parquet
+├── train_y_data.csv
+├── val_data.parquet
+├── val_scores.json
+├── val_y_data.csv
+├── val_y_data_predicted.csv
+├── x_data_gene_expression_scaler.gz
+└── x_data_mordred_scaler.gz
 ```
