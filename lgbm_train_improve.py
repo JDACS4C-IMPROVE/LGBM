@@ -17,8 +17,8 @@ All the outputs from this train script are saved in params["output_dir"].
 
 3. Prediction performance scores on val data.
    The performance scores are calculated using the raw model predictions and
-   the true values for performance metrics specified in the metrics_list. The
-   scores are saved as json in val_scores.json
+   the true values for performance metrics. The scores are saved as json in
+   val_scores.json
 """
 
 import sys
@@ -40,9 +40,6 @@ from model_utils.utils import extract_subset_fea
 
 filepath = Path(__file__).resolve().parent # [Req]
 
-# [Req] List of metrics names to compute prediction performance scores
-metrics_list = ["mse", "rmse", "pcc", "scc", "r2"]  
-
 
 # [Req]
 def run(params: Dict):
@@ -52,8 +49,7 @@ def run(params: Dict):
         params (dict): dict of IMPROVE parameters and parsed values.
 
     Returns:
-        dict: prediction performance scores computed on validation data
-            according to the metrics_list.
+        dict: prediction performance scores computed on validation data.
     """
     # breakpoint()
     # from pprint import pprint; pprint(params);
