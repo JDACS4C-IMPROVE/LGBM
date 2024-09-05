@@ -134,3 +134,4 @@ out*
 csa_data*
 ml_data/
 res*/
+*log_file.txt
