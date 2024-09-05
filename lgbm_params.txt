@@ -1,5 +1,5 @@
 [Global_Params]
-model_name = "LGBM"
+model_name = LGBM
 
 [Preprocess]
 train_split_file = CCLE_split_0_train.txt
@@ -10,7 +10,7 @@ y_data_files = [["response.tsv"]]
 x_data_canc_files = [["cancer_gene_expression.tsv", ["Gene_Symbol"]]]
 x_data_drug_files = [["drug_mordred.tsv"]]
 use_lincs = True
-scaling = "std"
+scaling = std
 
 [Train]
 data_format = .parquet
