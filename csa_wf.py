@@ -79,9 +79,7 @@ infer_python_script = f'{model_name}_infer_improve.py'
 # Specify dirs
 # y_col_name = "auc"
 y_col_name = params['y_col_name']
-# MAIN_CSA_OUTDIR = Path(f"./{y_col_name}")
-# MAIN_CSA_OUTDIR = Path(f"./0_{y_col_name}_improvelib") # main output dir
-MAIN_CSA_OUTDIR = Path(f"./0_{y_col_name}_improvelib_small") # main output dir
+MAIN_CSA_OUTDIR = Path(f"./z_csa_run") # main output dir
 MAIN_ML_DATA_DIR = MAIN_CSA_OUTDIR / 'ml_data' # output_dir_pp, input_dir_train, input_dir_infer
 MAIN_MODEL_DIR = MAIN_CSA_OUTDIR / 'models' # output_dir_train, input_dir_infer
 MAIN_INFER_DIR = MAIN_CSA_OUTDIR / 'infer' # output_dir infer
@@ -90,8 +88,8 @@ splits_dir = Path(params['input_dir']) / params['splits_dir']
 
 ### Source and target data sources
 ## Set 1 - full analysis
-# source_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
-# target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
+source_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
+target_datasets = ["CCLE", "CTRPv2", "gCSI", "GDSCv1", "GDSCv2"]
 ## Set 2 - smaller datasets
 # source_datasets = ["CCLE", "gCSI", "GDSCv1", "GDSCv2"]
 # target_datasets = ["CCLE", "gCSI", "GDSCv1", "GDSCv2"]
@@ -107,16 +105,16 @@ splits_dir = Path(params['input_dir']) / params['splits_dir']
 # source_datasets = ["CCLE"]
 # target_datasets = ["CCLE"]
 ## Set 5 - single source and target
-source_datasets = ["GDSCv1"]
-target_datasets = ["CCLE"]
+# source_datasets = ["GDSCv1"]
+# target_datasets = ["CCLE"]
 
 only_cross_study = False
 # only_cross_study = True
 
 ## Splits
-# split_nums = []  # all splits
+split_nums = []  # all splits
 # split_nums = [0]
-split_nums = [4, 7]
+# split_nums = [4, 7]
 # split_nums = [1, 4, 7]
 # split_nums = [1, 3, 5, 7, 9]
 
@@ -237,7 +235,8 @@ for source_data_name in source_datasets:
                   "--input_data_dir", str(ml_data_dir),
                   "--input_model_dir", str(model_dir),
                   "--output_dir", str(infer_dir),
-                  "--y_col_name", y_col_name
+                  "--y_col_name", y_col_name,
+                  "--calc_infer_scores", "true"
             ]
             result = subprocess.run(infer_run, capture_output=True,
                                     text=True, check=True)
