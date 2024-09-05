@@ -53,7 +53,7 @@ def run(params: Dict):
     # ------------------------------------------------------
     # [Req] Create data name for test set
     # ------------------------------------------------------
-    test_data_fname = frm.build_ml_data_name(params, stage="test")
+    test_data_fname = frm.build_ml_data_file_name(data_format=params["data_format"], stage="test")
 
     # ------------------------------------------------------
     # Load model input data (ML data)
@@ -72,7 +72,10 @@ def run(params: Dict):
     # Load best model and compute predictions
     # ------------------------------------------------------
     # Build model path
-    modelpath = frm.build_model_path(params, model_dir=params["input_model_dir"])
+    modelpath = frm.build_model_path(
+        model_file_name=params["model_file_name"],
+        model_file_format=params["model_file_format"],
+        model_dir=params["output_dir"])
 
     # Load LightGBM
     model = lgb.Booster(model_file=str(modelpath))
@@ -115,10 +118,7 @@ def main(args):
     params = cfg.initialize_parameters(
         pathToModelDir=filepath,
         default_config="lgbm_params.txt",
-        default_model=None,
-        additional_cli_section=None,
-        additional_definitions=additional_definitions,
-        required=None
+        additional_definitions=additional_definitions
     )
     status = run(params)
     print("\nFinished model inference.")

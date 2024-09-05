@@ -172,7 +172,7 @@ def run(params: Dict):
         # The implementation of this step depends on the model.
         # --------------------------------
         # [Req] Build data name
-        data_fname = frm.build_ml_data_name(params, stage)
+        data_fname = frm.build_ml_data_file_name(data_format=params["data_format"], stage=stage)
 
         print("Merge data")
         data = rsp.merge(ge_sc, on=params["canc_col_name"], how="inner")
@@ -190,7 +190,7 @@ def run(params: Dict):
         ydf = data[meta_cols]
 
         # [Req] Save y dataframe for the current stage
-        frm.save_stage_ydf(ydf, params, stage)
+        frm.save_stage_ydf(ydf, stage, params["output_dir"])
 
     return params["output_dir"]
 
@@ -203,10 +203,7 @@ def main(args):
     params = cfg.initialize_parameters(
         pathToModelDir=filepath,
         default_config="lgbm_params.txt",
-        default_model=None,
-        additional_cli_section=None,
-        additional_definitions=additional_definitions,
-        required=None
+        additional_definitions=additional_definitions
     )
     ml_data_outdir = run(params)
     print("\nFinished data preprocessing.")
