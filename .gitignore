@@ -130,8 +130,9 @@ dmypy.json
 
 # IMPROVE
 .vscode/
-out*
 csa_data*
-ml_data/
-res*/
+ml_data*
+res*
+out*
+*csa_run*
 *log_file.txt
