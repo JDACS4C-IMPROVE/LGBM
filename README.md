@@ -80,15 +80,15 @@ git checkout develop
 
 ### 2. Set computational environment
 Option 1: create conda env using `yml`
-```
+```bash
 conda env create -f conda_env_lambda_py37.yml
 ```
 
-Option 2: check [conda_env_py37.sh](./conda_env_py37.sh)
+Option 2: use [conda_env_py37.sh](./conda_env_py37.sh)
 
 Option 3: use these commands
-```
-CONDA_ENV_NAME=lgbm_drp_py37
+```bash
+CONDA_ENV_NAME=lgbm_py37
 conda create -n $CONDA_ENV_NAME python=3.7 pip lightgbm=3.1.1 --yes
 conda activate $CONDA_ENV_NAME
 conda install conda-forge::pyarrow
@@ -102,7 +102,7 @@ source setup_improve.sh
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
 2. Clone IMPROVE repo (checkout `develop`) outside the LGBM model repo.
-3. Set up env variables: `IMPROVE_DATA_DIR` (to `./csa_data/`) and `PYTHONPATH` (adds IMPROVE repo).
+3. Set up `PYTHONPATH` (adds IMPROVE repo).
 
 
 ### 4. Preprocess CSA benchmark data (_raw data_) to construct model input data (_ML data_)
