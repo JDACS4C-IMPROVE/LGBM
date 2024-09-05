@@ -71,7 +71,7 @@ def run(params: Dict):
     modelpath = frm.build_model_path(
         model_file_name=params["model_file_name"],
         model_file_format=params["model_file_format"],
-        model_dir=params["output_dir"])
+        model_dir=params["input_model_dir"])
 
     # Load LightGBM
     model = lgb.Booster(model_file=str(modelpath))
