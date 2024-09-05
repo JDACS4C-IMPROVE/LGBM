@@ -1,0 +1,9 @@
+[DEFAULT]
+input_dir = ./csa_data/raw_data
+y_col_name = auc
+
+[Preprocess]
+
+[Train]
+
+[Infer]

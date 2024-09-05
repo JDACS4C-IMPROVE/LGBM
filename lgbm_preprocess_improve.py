@@ -3,7 +3,7 @@ LightGBM prediction model.
 
 Required outputs
 ----------------
-All the outputs from this preprocessing script are saved in params["ml_data_outdir"].
+All the outputs from this preprocessing script are saved in params["output_dir"].
 
 1. Model input data files.
    This script creates three data files corresponding to train, validation,
@@ -26,94 +26,21 @@ from typing import Dict
 import pandas as pd
 import joblib
 
-# [Req] IMPROVE/CANDLE imports
-from improve import framework as frm
-from improve import drug_resp_pred as drp
+# [Req] IMPROVE imports
+# Core improvelib imports
+from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig
+from improvelib.utils import str2bool
+import improvelib.utils as frm
+# Application-specific (DRP) imports
+import improvelib.applications.drug_response_prediction.drug_utils as drugs_utils
+import improvelib.applications.drug_response_prediction.omics_utils as omics_utils
+import improvelib.applications.drug_response_prediction.drp_utils as drp
 
 # Model-specifc imports
+from model_params_def import preprocess_params # [Req]
 from model_utils.utils import gene_selection, scale_df
 
 filepath = Path(__file__).resolve().parent # [Req]
-
-# ---------------------
-# [Req] Parameter lists
-# ---------------------
-# Two parameter lists are required:
-# 1. app_preproc_params
-# 2. model_preproc_params
-# 
-# The values for the parameters in both lists should be specified in a
-# parameter file that is passed as default_model arg in
-# frm.initialize_parameters().
-
-# 1. App-specific params (App: monotherapy drug response prediction)
-# Note! This list should not be modified (i.e., no params should added or
-# removed from the list.
-# 
-# There are two types of params in the list: default and required
-# default:   default values should be used
-# required:  these params must be specified for the model in the param file
-app_preproc_params = [
-    {"name": "y_data_files", # default
-     "type": str,
-     "help": "List of files that contain the y (prediction variable) data. \
-             Example: [['response.tsv']]",
-    },
-    {"name": "x_data_canc_files", # required
-     "type": str,
-     "help": "List of feature files including gene_system_identifer. Examples: \n\
-             1) [['cancer_gene_expression.tsv', ['Gene_Symbol']]] \n\
-             2) [['cancer_copy_number.tsv', ['Ensembl', 'Entrez']]].",
-    },
-    {"name": "x_data_drug_files", # required
-     "type": str,
-     "help": "List of feature files. Examples: \n\
-             1) [['drug_SMILES.tsv']] \n\
-             2) [['drug_SMILES.tsv'], ['drug_ecfp4_nbits512.tsv']]",
-    },
-    {"name": "canc_col_name",
-     "default": "improve_sample_id", # default
-     "type": str,
-     "help": "Column name in the y (response) data file that contains the cancer sample ids.",
-    },
-    {"name": "drug_col_name", # default
-     "default": "improve_chem_id",
-     "type": str,
-     "help": "Column name in the y (response) data file that contains the drug ids.",
-    },
-]
-
-# 2. Model-specific params (Model: LightGBM)
-# All params in model_preproc_params are optional.
-# If no params are required by the model, then it should be an empty list.
-model_preproc_params = [
-    {"name": "use_lincs",
-     "type": frm.str2bool,
-     "default": True,
-     "help": "Flag to indicate if landmark genes are used for gene selection.",
-    },
-    {"name": "scaling",
-     "type": str,
-     "default": "std",
-     "choice": ["std", "minmax", "miabs", "robust"],
-     "help": "Scaler for gene expression and Mordred descriptors data.",
-    },
-    {"name": "ge_scaler_fname",
-     "type": str,
-     "default": "x_data_gene_expression_scaler.gz",
-     "help": "File name to save the gene expression scaler object.",
-    },
-    {"name": "md_scaler_fname",
-     "type": str,
-     "default": "x_data_mordred_scaler.gz",
-     "help": "File name to save the Mordred scaler object.",
-    },
-]
-
-# Combine the two lists (the combined parameter list will be passed to
-# frm.initialize_parameters() in the main().
-preprocess_params = app_preproc_params + model_preproc_params
-# ---------------------
 
 
 # [Req]
@@ -121,26 +48,19 @@ def run(params: Dict):
     """ Run data preprocessing.
 
     Args:
-        params (dict): dict of CANDLE/IMPROVE parameters and parsed values.
+        params (dict): dict of IMPROVE parameters and parsed values.
 
     Returns:
         str: directory name that was used to save the preprocessed (generated)
             ML data files.
     """
-
-    # ------------------------------------------------------
-    # [Req] Build paths and create output dir
-    # ------------------------------------------------------
-    # Build paths for raw_data, x_data, y_data, splits
-    params = frm.build_paths(params)  
-
-    # Create output dir for model input data (to save preprocessed ML data)
-    frm.create_outdir(outdir=params["ml_data_outdir"])
+    # breakpoint()
+    # from pprint import pprint; pprint(params);
 
     # ------------------------------------------------------
     # [Req] Load X data (feature representations)
     # ------------------------------------------------------
-    # Use the provided data loaders to load data that is required by the model.
+    # Use the provided data loaders to load data required by the model.
     #
     # Benchmark data includes three dirs: x_data, y_data, splits.
     # The x_data contains files that represent feature information such as
@@ -153,13 +73,11 @@ def run(params: Dict):
     # data, then the model must use the provided data loaders to load the data files
     # from the x_data dir.
     print("\nLoads omics data.")
-    omics_obj = drp.OmicsLoader(params)
-    # print(omics_obj)
+    omics_obj = omics_utils.OmicsLoader(params)
     ge = omics_obj.dfs['cancer_gene_expression.tsv'] # return gene expression
 
     print("\nLoad drugs data.")
-    drugs_obj = drp.DrugsLoader(params)
-    # print(drugs_obj)
+    drugs_obj = drugs_utils.DrugsLoader(params)
     md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
     md = md.reset_index()  # TODO. implement reset_index() inside the loader
 
@@ -198,13 +116,13 @@ def run(params: Dict):
 
     # Scale gene expression
     _, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    ge_scaler_fpath = Path(params["ml_data_outdir"]) / params["ge_scaler_fname"]
+    ge_scaler_fpath = Path(params["output_dir"]) / params["ge_scaler_fname"]
     joblib.dump(ge_scaler, ge_scaler_fpath)
     print("Scaler object for gene expression: ", ge_scaler_fpath)
 
     # Scale Mordred descriptors
     _, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
-    md_scaler_fpath = Path(params["ml_data_outdir"]) / params["md_scaler_fname"]
+    md_scaler_fpath = Path(params["output_dir"]) / params["md_scaler_fname"]
     joblib.dump(md_scaler, md_scaler_fpath)
     print("Scaler object for Mordred:         ", md_scaler_fpath)
 
@@ -250,7 +168,7 @@ def run(params: Dict):
         # print("MD var: ", md_sc.iloc[:,1:].var(axis=0).mean())
 
         # --------------------------------
-        # [Req] Save ML data files in params["ml_data_outdir"]
+        # [Req] Save ML data files in params["output_dir"]
         # The implementation of this step depends on the model.
         # --------------------------------
         # [Req] Build data name
@@ -263,7 +181,7 @@ def run(params: Dict):
 
         print("Save data")
         data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
-        data.to_parquet(Path(params["ml_data_outdir"])/data_fname) # saves ML data file to parquet
+        data.to_parquet(Path(params["output_dir"]) / data_fname) # saves ML data file to parquet
 
         # Prepare the y dataframe for the current stage
         fea_list = ["ge", "mordred"]
@@ -274,18 +192,21 @@ def run(params: Dict):
         # [Req] Save y dataframe for the current stage
         frm.save_stage_ydf(ydf, params, stage)
 
-    return params["ml_data_outdir"]
+    return params["output_dir"]
 
 
 # [Req]
 def main(args):
     # [Req]
     additional_definitions = preprocess_params
-    params = frm.initialize_parameters(
-        filepath,
-        default_model="lgbm_params.txt",
+    cfg = DRPPreprocessConfig()
+    params = cfg.initialize_parameters(
+        pathToModelDir=filepath,
+        default_config="lgbm_params.txt",
+        default_model=None,
+        additional_cli_section=None,
         additional_definitions=additional_definitions,
-        required=None,
+        required=None
     )
     ml_data_outdir = run(params)
     print("\nFinished data preprocessing.")

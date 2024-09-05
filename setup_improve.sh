@@ -1,5 +1,5 @@
 #!/bin/bash --login
-# Navigate to the dir with the cloned model repo
+# Navigate to the dir with the cloned model repo (e.g., LGBM)
 # Run it like this: source ./setup_improve.sh
 
 # set -e
@@ -19,20 +19,20 @@ else
     echo "CSA data folder already exists"
 fi
 
-# Env var IMPROVE_DATA_DIR
-export IMPROVE_DATA_DIR="./$data_dir/"
+# # Env var IMPROVE_DATA_DIR
+# export IMPROVE_DATA_DIR="./$data_dir/"
 
 # Clone IMPROVE lib (if needed)
-pushd ../
+cd ../
 improve_lib_path=$PWD/IMPROVE
-improve_branch="v0.0.3-beta"
+improve_branch="framework-api"
 if [ -d $improve_lib_path ]; then
   echo "IMPROVE repo exists in ${improve_lib_path}"
 else
     # git clone https://github.com/JDACS4C-IMPROVE/IMPROVE
     git clone -b $improve_branch https://github.com/JDACS4C-IMPROVE/IMPROVE
 fi
-pushd $model_name
+cd $model_name
 
 # Env var PYTHOPATH
 export PYTHONPATH=$PYTHONPATH:$improve_lib_path

@@ -1,24 +1,24 @@
 # LGBM
 
-This repository demonstrates how to use the [IMPROVE library v0.0.3-beta](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.0.3-beta) for building a drug response prediction (DRP) model using LightGBM (LGBM), and provides examples with the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
+This repository demonstrates how to use the [IMPROVE library v0.1.0-alpha](https://jdacs4c-improve.github.io/docs/v0.1.0-alpha/) for building a drug response prediction (DRP) model using LightGBM (LGBM), and provides examples with the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
-This version, tagged as `v0.0.3-beta`, is the final release before transitioning to `v0.1.0-alpha`, which introduces a new API. Version `v0.0.3-beta` and all previous releases have served as the foundation for developing essential components of the IMPROVE software stack. Subsequent releases build on this legacy with an updated API, designed to encourage broader adoption of IMPROVE and its curated models by the research community.
+This version, tagged as `v0.1.0-alpha`, introduces a new API which is designed to encourage broader adoption of IMPROVE and its curated models by the research community.
 
-A more detailed tutorial can be found [here](https://jdacs4c-improve.github.io/docs/v0.0.3-beta/content/ModelContributorGuide.html). 
+A more detailed tutorial can be found HERE (`TODO!`).
+
 
 
 ## Dependencies
 Installation instuctions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
 
-Conda `yml` file [conda_env.sh](./conda_env.sh)
+Conda `yml` file [conda_env_lambda_py37.yml](./conda_env_lambda_py37.yml)
 
 ML framework:
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
 + [pyarrow](https://anaconda.org/conda-forge/pyarrow) - save and load parquet files
 
 IMPROVE dependencies:
-+ [IMPROVE v0.0.3-beta](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.0.3-beta)
-+ [candle_lib](https://github.com/ECP-CANDLE/candle_lib) - IMPROVE dependency (enables various hyperparameter optimization on HPC machines) `TODO`: need to fork into IMPROVE project and tag
++ [IMPROVE v0.1.0-alpha](https://jdacs4c-improve.github.io/docs/v0.1.0-alpha/)
 
 
 
@@ -59,11 +59,13 @@ csa_data/raw_data/
 ```
 
 
+
 ## Model scripts and parameter file
 + `lgbm_preprocess_improve.py` - takes benchmark data files and transforms into files for trianing and inference
 + `lgbm_train_improve.py` - trains a LightGBM-based DRP model
 + `lgbm_infer_improve.py` - runs inference with the trained LightGBM model
-+ `lgbm_params.txt` - default parameter file
++ `model_params_def.py` - definitions of parameters that are specific to the model
++ `lgbm_params.txt` - default parameter file (parameter values specified in this file override the defaults)
 
 
 
@@ -79,7 +81,7 @@ git checkout develop
 ### 2. Set computational environment
 Option 1: create conda env using `yml`
 ```
-conda env create -f conda_env_lgbm_py37.yml 
+conda env create -f conda_env_lambda_py37.yml
 ```
 
 Option 2: check [conda_env_py37.sh](./conda_env_py37.sh)
@@ -90,9 +92,7 @@ CONDA_ENV_NAME=lgbm_drp_py37
 conda create -n $CONDA_ENV_NAME python=3.7 pip lightgbm=3.1.1 --yes
 conda activate $CONDA_ENV_NAME
 conda install conda-forge::pyarrow
-pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
 ```
-
 
 ### 3. Run `setup_improve.sh`.
 ```bash
@@ -101,13 +101,13 @@ source setup_improve.sh
 
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
-2. Clone IMPROVE repo (checkout tag `v0.0.3-beta`) outside the LGBM model repo
+2. Clone IMPROVE repo (checkout `develop`) outside the LGBM model repo.
 3. Set up env variables: `IMPROVE_DATA_DIR` (to `./csa_data/`) and `PYTHONPATH` (adds IMPROVE repo).
 
 
 ### 4. Preprocess CSA benchmark data (_raw data_) to construct model input data (_ML data_)
 ```bash
-python lgbm_preprocess_improve.py
+python lgbm_preprocess_improve.py --input_dir ./csa_data/raw_data --output_dir exp_result
 ```
 
 Preprocesses the CSA data and creates train, validation (val), and test datasets.
@@ -117,23 +117,22 @@ Generates:
 * three tabular data files, each containing the drug response values (i.e. AUC) and corresponding metadata: `train_y_data.csv`, `val_y_data.csv`, `test_y_data.csv`
 
 ```
-ml_data
-└── CCLE-CCLE
-    └── split_0
-        ├── test_data.parquet
-        ├── test_y_data.csv
-        ├── train_data.parquet
-        ├── train_y_data.csv
-        ├── val_data.parquet
-        ├── val_y_data.csv
-        ├── x_data_gene_expression_scaler.gz
-        └── x_data_mordred_scaler.gz
+exp_result
+├── param_log_file.txt
+├── test_data.parquet
+├── test_y_data.csv
+├── train_data.parquet
+├── train_y_data.csv
+├── val_data.parquet
+├── val_y_data.csv
+├── x_data_gene_expression_scaler.gz
+└── x_data_mordred_scaler.gz
 ```
 
 
 ### 5. Train LightGBM model
 ```bash
-python lgbm_train_improve.py
+python lgbm_train_improve.py --input_dir exp_result --output_dir exp_result
 ```
 
 Trains a LightGBM model using the model input data: `train_data.parquet` (training), `val_data.parquet` (early stopping).
@@ -143,18 +142,25 @@ Generates:
 * predictions on val data (tabular data): `val_y_data_predicted.csv`
 * prediction performance scores on val data: `val_scores.json`
 ```
-out_models
-└── CCLE
-    └── split_0
-        ├── model.txt
-        ├── val_scores.json
-        └── val_y_data_predicted.csv
+exp_result
+├── model.txt
+├── param_log_file.txt
+├── test_data.parquet
+├── test_y_data.csv
+├── train_data.parquet
+├── train_y_data.csv
+├── val_data.parquet
+├── val_scores.json
+├── val_y_data.csv
+├── val_y_data_predicted.csv
+├── x_data_gene_expression_scaler.gz
+└── x_data_mordred_scaler.gz
 ```
 
 
 ### 6. Run inference on test data with the trained LightGBM model
 ```bash
-python lgbm_infer_improve.py
+python lgbm_infer_improve.py --input_data_dir exp_result --input_model_dir exp_result --output_dir exp_result --calc_infer_score true
 ```
 
 Evaluates the performance on a test dataset with the trained model.
@@ -163,9 +169,19 @@ Generates:
 * predictions on test data (tabular data): `test_y_data_predicted.csv`
 * prediction performance scores on test data: `test_scores.json`
 ```
-out_infer
-└── CCLE-CCLE
-    └── split_0
-        ├── test_scores.json
-        └── test_y_data_predicted.csv
+exp_result
+├── model.txt
+├── param_log_file.txt
+├── test_data.parquet
+├── test_scores.json
+├── test_y_data.csv
+├── test_y_data_predicted.csv
+├── train_data.parquet
+├── train_y_data.csv
+├── val_data.parquet
+├── val_scores.json
+├── val_y_data.csv
+├── val_y_data_predicted.csv
+├── x_data_gene_expression_scaler.gz
+└── x_data_mordred_scaler.gz
 ```
