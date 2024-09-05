@@ -84,21 +84,25 @@ def run(params: Dict):
     # ------------------------------------------------------
     # [Req] Save raw predictions in dataframe
     # ------------------------------------------------------
-    frm.store_predictions_df(y_true=test_true, 
+    frm.store_predictions_df(
+        y_true=test_true, 
         y_pred=test_pred, 
         stage="test",
         y_col_name=params["y_col_name"],
-        output_dir=params["output_dir"])
+        output_dir=params["output_dir"]
+    )
 
     # ------------------------------------------------------
     # [Req] Compute performance scores
     # ------------------------------------------------------
     if params["calc_infer_scores"]:
-        test_scores = frm.compute_performance_scores(y_true=test_true, 
+        test_scores = frm.compute_performance_scores(
+            y_true=test_true, 
             y_pred=test_pred, 
             stage="test",
             metric_type=params["metric_type"],
-            output_dir=params["output_dir"])
+            output_dir=params["output_dir"]
+        )
 
     return True
 
