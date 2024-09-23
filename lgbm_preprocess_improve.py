@@ -206,6 +206,9 @@ def main(args):
         additional_definitions=additional_definitions
     )
     ml_data_outdir = run(params)
+    done_outfile = Path(params["output_dir"]) / "done.txt"
+    with open(done_outfile, 'w') as file:
+        file.write("done")
     print("\nFinished data preprocessing.")
 
 
