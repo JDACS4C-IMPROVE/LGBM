@@ -42,7 +42,7 @@ filepath = Path(__file__).resolve().parent # [Req]
 
 
 # [Req]
-def run(params: Dict):
+def run(params: Dict) -> Dict:
     """ Run model training.
 
     Args:
@@ -60,7 +60,8 @@ def run(params: Dict):
     modelpath = frm.build_model_path(
         model_file_name=params["model_file_name"],
         model_file_format=params["model_file_format"],
-        model_dir=params["output_dir"])
+        model_dir=params["output_dir"]
+    )
 
     # ------------------------------------------------------
     # [Req] Create data names for train and val sets
@@ -128,7 +129,9 @@ def run(params: Dict):
         y_pred=val_pred, 
         stage="val",
         y_col_name=params["y_col_name"],
-        output_dir=params["output_dir"])
+        output_dir=params["output_dir"],
+        input_dir=params["input_dir"]
+    )
 
     # ------------------------------------------------------
     # [Req] Compute performance scores
@@ -138,13 +141,15 @@ def run(params: Dict):
         y_pred=val_pred, 
         stage="val",
         metric_type=params["metric_type"],
-        output_dir=params["output_dir"])
+        output_dir=params["output_dir"]
+    )
 
     return val_scores
 
 
-def initialize_parameters():
-    """This initialize_parameters() is define this way to support Supervisor
+# [Req]
+def initialize_parameters() -> Dict:
+    """ This initialize_parameters() is define this way to support Supervisor
     workflows such as HPO.
 
     Returns:
