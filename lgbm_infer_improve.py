@@ -34,7 +34,7 @@ filepath = Path(__file__).resolve().parent # [Req]
 
 
 # [Req]
-def run(params: Dict):
+def run(params: Dict) -> bool:
     """ Run model inference.
 
     Args:
@@ -71,7 +71,8 @@ def run(params: Dict):
     modelpath = frm.build_model_path(
         model_file_name=params["model_file_name"],
         model_file_format=params["model_file_format"],
-        model_dir=params["input_model_dir"])
+        model_dir=params["input_model_dir"]
+    ) # [Req]
 
     # Load LightGBM
     model = lgb.Booster(model_file=str(modelpath))
@@ -88,7 +89,8 @@ def run(params: Dict):
         y_pred=test_pred, 
         stage="test",
         y_col_name=params["y_col_name"],
-        output_dir=params["output_dir"]
+        output_dir=params["output_dir"],
+        input_dir=params["input_data_dir"]
     )
 
     # ------------------------------------------------------
