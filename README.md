@@ -16,7 +16,7 @@ ML framework:
 + [pyarrow](https://anaconda.org/conda-forge/pyarrow) - save and load parquet files
 
 IMPROVE dependencies:
-+ [IMPROVE v0.1.0](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.1.0-2024-09-27)
++ [IMPROVE tag v0.1.0-2024-09-27](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.1.0-2024-09-27)
 
 
 
