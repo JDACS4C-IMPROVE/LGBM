@@ -1,4 +1,4 @@
-name: lgbm_py37
+name: lgbm_py37_with_candle
 channels:
   - defaults
   - conda-forge
@@ -147,4 +147,4 @@ dependencies:
       - threadpoolctl==3.1.0
       - tqdm==4.66.1
       - urllib3==2.0.7
-prefix: /homes/apartin/miniconda3/envs/lgbm_py37
+prefix: /homes/apartin/miniconda3/envs/lgbm_py37_with_candle
