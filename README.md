@@ -69,17 +69,17 @@ csa_data/raw_data/
 
 # Step-by-step instructions
 
-### 1. Clone the model repository
+### 1. Clone the model repository and checkout the tag
 ```
 git clone git@github.com:JDACS4C-IMPROVE/LGBM.git
 cd LGBM
-git checkout develop
+git checkout v0.1.0-2024-09-27
 ```
 
 ### 2. Set computational environment
 Option 1: create conda env using `yml`
 ```bash
-conda env create -f conda_env_lambda_py37.yml
+conda env create -f conda_wo_candle.yml
 ```
 
 Option 2: use [conda_env_py37.sh](./conda_env_py37.sh)
