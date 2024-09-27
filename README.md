@@ -9,7 +9,7 @@ This version, tagged as `v0.1.0-2024-09-27`, introduces a new API which is desig
 ## Dependencies
 Installation instuctions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
 
-Conda `yml` file [conda_env_lambda_py37.yml](./conda_env_lambda_py37.yml)
+Conda `yml` file [conda_wo_candle.yml](./conda_wo_candle.yml)
 
 ML framework:
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
@@ -99,7 +99,7 @@ source setup_improve.sh
 
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
-2. Clone IMPROVE repo (checkout `develop`) outside the LGBM model repo.
+2. Clone IMPROVE repo (checkout `v0.1.0-2024-09-27`) outside the LGBM model repo.
 3. Set up `PYTHONPATH` (adds IMPROVE repo).
 
 
