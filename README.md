@@ -7,13 +7,12 @@ This version, tagged as `v0.1.0-2024-09-27`, introduces a new API which is desig
 
 
 ## Dependencies
-Installation instuctions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
+Installation instructions are detialed below in [Step-by-step instructions](#step-by-step-instructions).
 
 Conda `yml` file [conda_wo_candle.yml](./conda_wo_candle.yml)
 
 ML framework:
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
-+ [pyarrow](https://anaconda.org/conda-forge/pyarrow) - save and load parquet files
 
 IMPROVE dependencies:
 + [IMPROVE tag v0.1.0-2024-09-27](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.1.0-2024-09-27)
@@ -69,12 +68,13 @@ csa_data/raw_data/
 
 # Step-by-step instructions
 
-### 1. Clone the model repository and checkout the tag
-```
+### 1. Clone the model repository and checkout the branch (or tag)
+```bash
 git clone git@github.com:JDACS4C-IMPROVE/LGBM.git
 cd LGBM
 git checkout v0.1.0-2024-09-27
 ```
+
 
 ### 2. Set computational environment
 Option 1: create conda env using `yml`
@@ -89,8 +89,12 @@ Option 3: use these commands
 CONDA_ENV_NAME=lgbm_py37
 conda create -n $CONDA_ENV_NAME python=3.7 pip lightgbm=3.1.1 --yes
 conda activate $CONDA_ENV_NAME
-conda install conda-forge::pyarrow
+conda install conda-forge::pandas=1.3.0
+conda install conda-forge::scikit-learn=1.0.2
+conda install conda-forge::pyyaml=6.0
+conda install conda-forge::pyarrow=9.0.0
 ```
+
 
 ### 3. Run `setup_improve.sh`.
 ```bash
@@ -99,7 +103,7 @@ source setup_improve.sh
 
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
-2. Clone IMPROVE repo (checkout `v0.1.0-2024-09-27`) outside the LGBM model repo.
+2. Clone IMPROVE repo (and checkout `v0.1.0-2024-09-27`) outside the LGBM model repo.
 3. Set up `PYTHONPATH` (adds IMPROVE repo).
 
 
