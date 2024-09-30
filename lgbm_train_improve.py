@@ -148,27 +148,14 @@ def run(params: Dict) -> Dict:
 
 
 # [Req]
-def initialize_parameters() -> Dict:
-    """ This initialize_parameters() is define this way to support Supervisor
-    workflows such as HPO.
-
-    Returns:
-        dict: dict of IMPROVE/CANDLE parameters and parsed values.
-    """
-    # [Req] Initialize parameters
+def main(args):
+    # [Req]
     additional_definitions = train_params
     cfg = DRPTrainConfig()
     params = cfg.initialize_parameters(
         pathToModelDir=filepath,
         default_config="lgbm_params.txt",
         additional_definitions=additional_definitions)
-    return params
-
-
-# [Req]
-def main(args):
-    # [Req]
-    params = initialize_parameters()
     val_scores = run(params)
     print("\nFinished model training.")
 
