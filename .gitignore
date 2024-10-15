@@ -136,3 +136,5 @@ res*
 out*
 *csa_run*
 *log_file.txt
+postproc*
+bruteforce_csa*
