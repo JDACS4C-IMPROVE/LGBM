@@ -18,7 +18,7 @@ def gene_selection(df: pd.DataFrame,
         genes = [str(line.rstrip()) for line in f]
     # genes = ["ge_" + str(g) for g in genes]  # This is for our legacy data
     # print("Genes count: {}".format(len(set(genes).intersection(set(df.columns[1:])))))
-    genes = list(set(genes).intersection(set(df.columns[1:])))
+    genes = sorted(list(set(genes).intersection(set(df.columns[1:]))))
     # genes = drp.common_elements(genes, df.columns[1:])
     cols = [canc_col_name] + genes
     return df[cols]

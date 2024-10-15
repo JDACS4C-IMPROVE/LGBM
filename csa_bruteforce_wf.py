@@ -238,7 +238,7 @@ for source_data_name in source_datasets:
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+print_fn('\nFinished full cross-study run.')
 tt = timer.display_timer(print_fn)
 timer.save_timer(MAIN_CSA_OUTDIR)
-print_fn('Finished full cross-study run.')
 
