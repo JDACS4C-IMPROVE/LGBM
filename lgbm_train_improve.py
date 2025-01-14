@@ -124,6 +124,10 @@ def run(params: Dict):
     tr_data = pd.read_parquet(Path(params["train_ml_data_dir"])/train_data_fname)
     vl_data = pd.read_parquet(Path(params["val_ml_data_dir"])/val_data_fname)
 
+    # float16
+    tr_data[tr_data.select_dtypes('float64').columns] = tr_data.select_dtypes('float64').astype('float16')
+    vl_data[vl_data.select_dtypes('float64').columns] = vl_data.select_dtypes('float64').astype('float16')
+
     fea_list = ["ge", "mordred"]
     fea_sep = "."
 
