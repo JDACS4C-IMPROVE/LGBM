@@ -261,9 +261,9 @@ def run(params: Dict):
         data = rsp.merge(ge_sc, on=params["canc_col_name"], how="inner")
         data = data.merge(md_sc, on=params["drug_col_name"], how="inner")
         data = data.sample(frac=1.0).reset_index(drop=True) # shuffle
-        print("Natasha dtypes:")
-        print(data.dtypes)
-        data[data.select_dtypes('float64').columns] = data.select_dtypes('float64').astype('float16')
+        #print("Natasha dtypes:")
+        #print(data.dtypes)
+        #data[data.select_dtypes('float64').columns] = data.select_dtypes('float64').astype('float16')
         
         print("Save data")
         data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
