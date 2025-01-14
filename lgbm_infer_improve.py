@@ -87,6 +87,9 @@ def run(params: Dict):
     # ------------------------------------------------------
     te_data = pd.read_parquet(Path(params["test_ml_data_dir"])/test_data_fname)
 
+    # float16
+    te_data[te_data.select_dtypes('float64').columns] = te_data.select_dtypes('float64').astype('float16')
+
     fea_list = ["ge", "mordred"]
     fea_sep = "."
 
