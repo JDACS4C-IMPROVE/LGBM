@@ -276,7 +276,7 @@ def run(params: Dict):
         ydf = data[meta_cols]
         ydf[ydf.select_dtypes('float64').columns] = ydf.select_dtypes('float64').astype('float16')
         # [Req] Save y dataframe for the current stage
-        frm.save_stage_ydf(ydf, params, stage)
+        # frm.save_stage_ydf(ydf, params, stage)
 
     return params["ml_data_outdir"]
 
