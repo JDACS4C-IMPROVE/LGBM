@@ -162,10 +162,12 @@ def run(params: Dict):
     drugs_obj = drp.DrugsLoader(params)
     # print(drugs_obj)
     md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
+    md = md.reset_index()  # TODO. implement reset_index() inside the loader
     # for fuzzy mordred because I messed up column names
+    print("old columns:", md.columns)
     md = md.rename(columns={params["drug_col_name"]: 'improve_chem_id'})
     params["drug_col_name"] = 'improve_chem_id'
-    md = md.reset_index()  # TODO. implement reset_index() inside the loader
+    print("new columns:", md.columns)
 
     # ------------------------------------------------------
     # Further preprocess X data
