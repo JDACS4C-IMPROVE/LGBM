@@ -79,6 +79,7 @@ def run(params: Dict):
                                         benchmark_dir = params['input_dir'], 
                                         cell_column_name = params['canc_col_name'], 
                                         norm = params['cell_transcriptomic_transform'])
+    ge = ge.reset_index()
 
     print("\nLoad drugs data.")
     #drugs_obj = drugs_utils.DrugsLoader(params)
