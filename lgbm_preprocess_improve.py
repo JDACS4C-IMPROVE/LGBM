@@ -32,8 +32,6 @@ from improvelib.applications.drug_response_prediction.config import DRPPreproces
 from improvelib.utils import str2bool
 import improvelib.utils as frm
 # Application-specific (DRP) imports
-import improvelib.applications.drug_response_prediction.drug_utils as drugs_utils
-import improvelib.applications.drug_response_prediction.omics_utils as omics_utils
 import improvelib.applications.drug_response_prediction.drp_utils as drp
 
 # Model-specifc imports
@@ -73,8 +71,6 @@ def run(params: Dict):
     # data, then the model must use the provided data loaders to load the data files
     # from the x_data dir.
     print("\nLoads omics data.")
-    #omics_obj = omics_utils.OmicsLoader(params)
-    #ge = omics_obj.dfs['cancer_gene_expression.tsv'] # return gene expression
     ge = drp.get_cell_transcriptomics(file = params['cell_transcriptomic_file'], 
                                         benchmark_dir = params['input_dir'], 
                                         cell_column_name = params['canc_col_name'], 
@@ -82,8 +78,6 @@ def run(params: Dict):
     ge = ge.reset_index()
 
     print("\nLoad drugs data.")
-    #drugs_obj = drugs_utils.DrugsLoader(params)
-    #md = drugs_obj.dfs['drug_mordred.tsv'] # return the Mordred descriptors
     md = drp.get_drug_mordred(file = params['drug_mordred_file'], 
                     benchmark_dir = params['input_dir'], 
                     drug_column_name = params['drug_col_name'])
@@ -107,12 +101,6 @@ def run(params: Dict):
     # ------------------------------------------------------
     # Load and combine responses
     print("Create feature scaler.")
-    #rsp_tr = drp.DrugResponseLoader(params,
-    #                                split_file=params["train_split_file"],
-    #                                verbose=False).dfs["response.tsv"]
-    #rsp_vl = drp.DrugResponseLoader(params,
-    #                                split_file=params["val_split_file"],
-    #                                verbose=False).dfs["response.tsv"]
     rsp_tr = drp.get_response_data(split_file=params["train_split_file"], 
                                    benchmark_dir=params['input_dir'], 
                                    response_file=params['y_data_file'])
@@ -159,9 +147,6 @@ def run(params: Dict):
         # --------------------------------
         # [Req] Load response data
         # --------------------------------
-        #rsp = drp.DrugResponseLoader(params,
-        #                             split_file=split_file,
-        #                             verbose=False).dfs["response.tsv"]
         rsp = drp.get_response_data(split_file=split_file, 
                                 benchmark_dir=params['input_dir'], 
                                 response_file=params['y_data_file'])
