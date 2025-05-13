@@ -63,15 +63,14 @@ def run(params: Dict):
     # [Req] Determine preprocessing on training data
     # ------------------------------------------------------
     print("Load omics data.")
-    ge = drp.get_cell_transcriptomics(file = params['cell_transcriptomic_file'], 
+    ge = drp.get_x_data(file = params['cell_transcriptomic_file'], 
                                         benchmark_dir = params['input_dir'], 
-                                        cell_column_name = params['canc_col_name'], 
-                                        norm = params['cell_transcriptomic_transform'])
+                                        column_name = params['canc_col_name'])
 
     print("Load drug data.")
-    md = drp.get_drug_mordred(file = params['drug_mordred_file'], 
+    md = drp.get_x_data(file = params['drug_mordred_file'], 
                     benchmark_dir = params['input_dir'], 
-                    drug_column_name = params['drug_col_name'])
+                    column_name = params['drug_col_name'])
 
     print("Load train response data.")
     response_train = drp.get_response_data(split_file=params["train_split_file"], 
