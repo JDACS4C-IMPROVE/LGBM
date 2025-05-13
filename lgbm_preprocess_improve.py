@@ -107,8 +107,8 @@ def run(params: Dict):
         md_stage = drp.get_features_in_response(md, response_stage, params['drug_col_name'])
 
         print(f"Transform {stage} data.")
-        ge_stage = drp.transform_data(ge_stage, 'ge_tranform', params['output_dir'])
-        md_stage = drp.transform_data(md_stage, 'md_tranform', params['output_dir'])
+        ge_stage = drp.transform_data(ge_stage, 'ge_transform', params['output_dir'])
+        md_stage = drp.transform_data(md_stage, 'md_transform', params['output_dir'])
 
         # Prefix gene column names with "ge."
         fea_sep = "."
