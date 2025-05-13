@@ -52,146 +52,86 @@ def run(params: Dict):
         str: directory name that was used to save the preprocessed (generated)
             ML data files.
     """
-    # breakpoint()
-    # from pprint import pprint; pprint(params);
+
 
     # ------------------------------------------------------
-    # [Req] Load X data (feature representations)
+    # [Req] Validity check of feature representations
     # ------------------------------------------------------
-    # Use the provided data loaders to load data required by the model.
-    #
-    # Benchmark data includes three dirs: x_data, y_data, splits.
-    # The x_data contains files that represent feature information such as
-    # cancer representation (e.g., omics) and drug representation (e.g., SMILES).
-    #
-    # Prediction models utilize various types of feature representations.
-    # Drug response prediction (DRP) models generally use omics and drug features.
-    #
-    # If the model uses omics data types that are provided as part of the benchmark
-    # data, then the model must use the provided data loaders to load the data files
-    # from the x_data dir.
-    print("\nLoads omics data.")
+    # not needed for this data/model
+
+    # ------------------------------------------------------
+    # [Req] Determine preprocessing on training data
+    # ------------------------------------------------------
+    print("Load omics data.")
     ge = drp.get_cell_transcriptomics(file = params['cell_transcriptomic_file'], 
                                         benchmark_dir = params['input_dir'], 
                                         cell_column_name = params['canc_col_name'], 
                                         norm = params['cell_transcriptomic_transform'])
-    ge = ge.reset_index()
 
-    print("\nLoad drugs data.")
+    print("Load drug data.")
     md = drp.get_drug_mordred(file = params['drug_mordred_file'], 
                     benchmark_dir = params['input_dir'], 
                     drug_column_name = params['drug_col_name'])
-    md = md.reset_index()  # TODO. implement reset_index() inside the loader
 
-    # ------------------------------------------------------
-    # Further preprocess X data
-    # ------------------------------------------------------
-    # Gene selection (based on LINCS landmark genes)
-    if params["use_lincs"]:
-        genes_fpath = filepath/"model_utils/landmark_genes.txt"
-        ge = gene_selection(ge, genes_fpath, canc_col_name=params["canc_col_name"])
-
-    # Prefix gene column names with "ge."
-    fea_sep = "."
-    fea_prefix = "ge"
-    ge = ge.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge.columns[1:]})
-
-    # ------------------------------------------------------
-    # Create feature scaler
-    # ------------------------------------------------------
-    # Load and combine responses
-    print("Create feature scaler.")
-    rsp_tr = drp.get_response_data(split_file=params["train_split_file"], 
+    print("Load train response data.")
+    response_train = drp.get_response_data(split_file=params["train_split_file"], 
                                    benchmark_dir=params['input_dir'], 
                                    response_file=params['y_data_file'])
-    rsp_vl = drp.get_response_data(split_file=params["val_split_file"], 
-                                   benchmark_dir=params['input_dir'], 
-                                   response_file=params['y_data_file'])
-    rsp = pd.concat([rsp_tr, rsp_vl], axis=0)
+    
+    print("Find intersection of training data.")
+    response_train = drp.get_response_with_features(response_train, ge, params['canc_col_name'])
+    response_train = drp.get_response_with_features(response_train, md, params['drug_col_name'])
+    ge_train = drp.get_features_in_response(ge, response_train, params['canc_col_name'])
+    md_train = drp.get_features_in_response(md, response_train, params['drug_col_name'])
 
-    # Retian feature rows that are present in the y data (response dataframe)
-    # Intersection of omics features, drug features, and responses
-    rsp = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
-    rsp = rsp.merge(md[params["drug_col_name"]], on=params["drug_col_name"], how="inner")
-    ge_sub = ge[ge[params["canc_col_name"]].isin(rsp[params["canc_col_name"]])].reset_index(drop=True)
-    md_sub = md[md[params["drug_col_name"]].isin(rsp[params["drug_col_name"]])].reset_index(drop=True)
-
-    # Scale gene expression
-    _, ge_scaler = scale_df(ge_sub, scaler_name=params["scaling"])
-    ge_scaler_fpath = Path(params["output_dir"]) / params["ge_scaler_fname"]
-    joblib.dump(ge_scaler, ge_scaler_fpath)
-    print("Scaler object for gene expression: ", ge_scaler_fpath)
-
-    # Scale Mordred descriptors
-    _, md_scaler = scale_df(md_sub, scaler_name=params["scaling"])
-    md_scaler_fpath = Path(params["output_dir"]) / params["md_scaler_fname"]
-    joblib.dump(md_scaler, md_scaler_fpath)
-    print("Scaler object for Mordred:         ", md_scaler_fpath)
-
-    del rsp, rsp_tr, rsp_vl, ge_sub, md_sub
+    print("Determine transformations.")
+    drp.determine_transform(ge_train, 'ge_transform', params['cell_transcriptomic_transform'], params['output_dir'])
+    drp.determine_transform(md_train, 'md_transform', params['drug_mordred_transform'], params['output_dir'])
 
     # ------------------------------------------------------
     # [Req] Construct ML data for every stage (train, val, test)
     # ------------------------------------------------------
-    # All models must load response data (y data) using DrugResponseLoader().
-    # Below, we iterate over the 3 split files (train, val, test) and load
-    # response data, filtered by the split ids from the split files.
-
     # Dict with split files corresponding to the three sets (train, val, and test)
     stages = {"train": params["train_split_file"],
               "val": params["val_split_file"],
               "test": params["test_split_file"]}
 
     for stage, split_file in stages.items():
-
-        # --------------------------------
-        # [Req] Load response data
-        # --------------------------------
-        rsp = drp.get_response_data(split_file=split_file, 
+        print(f"Prepare data for stage {stage}.")
+        print(f"Find intersection of {stage} data.")
+        response_stage = drp.get_response_data(split_file=split_file, 
                                 benchmark_dir=params['input_dir'], 
                                 response_file=params['y_data_file'])
+        response_stage = drp.get_response_with_features(response_stage, ge, params['canc_col_name'])
+        response_stage = drp.get_response_with_features(response_stage, md, params['drug_col_name'])
+        ge_stage = drp.get_features_in_response(ge, response_stage, params['canc_col_name'])
+        md_stage = drp.get_features_in_response(md, response_stage, params['drug_col_name'])
 
-        # --------------------------------
-        # Data prep
-        # --------------------------------
-        # Retain (canc, drug) responses for which both omics and drug features
-        # are available.
-        rsp = rsp.merge(ge[params["canc_col_name"]], on=params["canc_col_name"], how="inner")
-        rsp = rsp.merge(md[params["drug_col_name"]], on=params["drug_col_name"], how="inner")
-        ge_sub = ge[ge[params["canc_col_name"]].isin(rsp[params["canc_col_name"]])].reset_index(drop=True)
-        md_sub = md[md[params["drug_col_name"]].isin(rsp[params["drug_col_name"]])].reset_index(drop=True)
+        print(f"Transform {stage} data.")
+        ge_stage = drp.transform_data(ge_stage, 'ge_tranform', params['output_dir'])
+        md_stage = drp.transform_data(md_stage, 'md_tranform', params['output_dir'])
 
-        # Scale features
-        ge_sc, _ = scale_df(ge_sub, scaler=ge_scaler) # scale gene expression
-        md_sc, _ = scale_df(md_sub, scaler=md_scaler) # scale Mordred descriptors
-        # print("GE mean:", ge_sc.iloc[:,1:].mean(axis=0).mean())
-        # print("GE var: ", ge_sc.iloc[:,1:].var(axis=0).mean())
-        # print("MD mean:", md_sc.iloc[:,1:].mean(axis=0).mean())
-        # print("MD var: ", md_sc.iloc[:,1:].var(axis=0).mean())
+        # Prefix gene column names with "ge."
+        fea_sep = "."
+        fea_prefix = "ge"
+        ge_stage = ge_stage.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge_stage.columns[1:]})
 
-        # --------------------------------
-        # [Req] Save ML data files in params["output_dir"]
-        # The implementation of this step depends on the model.
-        # --------------------------------
         # [Req] Build data name
         data_fname = frm.build_ml_data_file_name(data_format=params["data_format"], stage=stage)
 
-        print("Merge data")
-        data = rsp.merge(ge_sc, on=params["canc_col_name"], how="inner")
-        data = data.merge(md_sc, on=params["drug_col_name"], how="inner")
+        y_df_cols = response_stage.columns.tolist()
+
+        print(f"Merge {stage} data")
+        data = response_stage.merge(ge_stage, on=params["canc_col_name"], how="inner")
+        data = data.merge(md_stage, on=params["drug_col_name"], how="inner")
         data = data.sample(frac=1.0).reset_index(drop=True) # shuffle
 
-        print("Save data")
+        print(f"Save {stage} data")
         data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
         data.to_parquet(Path(params["output_dir"]) / data_fname) # saves ML data file to parquet
-
-        # Prepare the y dataframe for the current stage
-        fea_list = ["ge", "mordred"]
-        fea_cols = [c for c in data.columns if (c.split(fea_sep)[0]) in fea_list]
-        meta_cols = [c for c in data.columns if (c.split(fea_sep)[0]) not in fea_list]
-        ydf = data[meta_cols]
-
+        
         # [Req] Save y dataframe for the current stage
+        ydf = data[y_df_cols]
         frm.save_stage_ydf(ydf, stage, params["output_dir"])
 
     return params["output_dir"]
