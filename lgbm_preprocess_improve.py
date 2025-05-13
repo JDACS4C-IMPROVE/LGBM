@@ -118,7 +118,7 @@ def run(params: Dict):
         # [Req] Build data name
         data_fname = frm.build_ml_data_file_name(data_format=params["data_format"], stage=stage)
 
-        y_df_cols = response_stage.columns.tolist()
+        y_df_cols = response_stage.columns.tolist().remove('study')
 
         print(f"Merge {stage} data")
         data = response_stage.merge(ge_stage, on=params["canc_col_name"], how="inner")
