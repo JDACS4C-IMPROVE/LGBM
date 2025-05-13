@@ -118,15 +118,15 @@ def run(params: Dict):
         # [Req] Build data name
         data_fname = frm.build_ml_data_file_name(data_format=params["data_format"], stage=stage)
 
-        y_df_cols = response_stage.columns.tolist().remove('study')
-
         print(f"Merge {stage} data")
-        data = response_stage.merge(ge_stage, on=params["canc_col_name"], how="inner")
+        data = response_stage.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
+        y_df_cols = data.columns.tolist()
+        data = data.merge(ge_stage, on=params["canc_col_name"], how="inner")
         data = data.merge(md_stage, on=params["drug_col_name"], how="inner")
         data = data.sample(frac=1.0).reset_index(drop=True) # shuffle
 
         print(f"Save {stage} data")
-        data = data.drop(columns=["study"]) # to_parquet() throws error since "study" contain mixed values
+        
         data.to_parquet(Path(params["output_dir"]) / data_fname) # saves ML data file to parquet
         
         # [Req] Save y dataframe for the current stage
