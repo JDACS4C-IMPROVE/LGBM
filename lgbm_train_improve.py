@@ -103,7 +103,7 @@ def run(params: Dict) -> Dict:
     model = lgb.LGBMRegressor(objective='regression', **ml_init_args)
 
     # Train model
-    ml_fit_args = {'verbose': False, 'early_stopping_rounds': 50}
+    ml_fit_args = {'verbose': False, 'early_stopping_rounds': params['patience']}
     ml_fit_args['eval_set'] = (xvl, yvl)
     model.fit(xtr, ytr, **ml_fit_args)
 
@@ -149,14 +149,15 @@ def run(params: Dict) -> Dict:
 
 # [Req]
 def main(args):
-    # [Req]
-    additional_definitions = train_params
     cfg = DRPTrainConfig()
-    params = cfg.initialize_parameters(
-        pathToModelDir=filepath,
-        default_config="lgbm_params.txt",
-        additional_definitions=additional_definitions)
+    params = cfg.initialize_parameters(pathToModelDir=filepath,
+                                       default_config="lgbm_params.txt",
+                                       additional_definitions=train_params)
+    timer_train = frm.Timer()    
     val_scores = run(params)
+    timer_train.save_timer(dir_to_save=params["output_dir"], 
+                           filename='runtime_train.json', 
+                           extra_dict={"stage": "train"})
     print("\nFinished model training.")
 
 

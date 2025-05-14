@@ -79,7 +79,7 @@ git checkout v0.1.0-2024-09-27
 ### 2. Set computational environment
 Option 1: create conda env using `yml`
 ```bash
-conda env create -f conda_wo_candle.yml
+conda env create -f lgbm_environment.yml
 ```
 
 Option 2: use [conda_env_py37.sh](./conda_env_py37.sh)
