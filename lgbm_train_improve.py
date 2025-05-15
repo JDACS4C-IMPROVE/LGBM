@@ -151,7 +151,7 @@ def run(params: Dict) -> Dict:
 def main(args):
     cfg = DRPTrainConfig()
     params = cfg.initialize_parameters(pathToModelDir=filepath,
-                                       default_config="lgbm_params.txt",
+                                       default_config="lgbm_params.ini",
                                        additional_definitions=train_params)
     timer_train = frm.Timer()    
     val_scores = run(params)

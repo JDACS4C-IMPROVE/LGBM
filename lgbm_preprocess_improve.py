@@ -140,7 +140,7 @@ def run(params: Dict):
 def main(args):
     cfg = DRPPreprocessConfig()
     params = cfg.initialize_parameters(pathToModelDir=filepath,
-                                       default_config="lgbm_params.txt",
+                                       default_config="lgbm_params.ini",
                                        additional_definitions=preprocess_params)
     timer_preprocess = frm.Timer()
     ml_data_outdir = run(params)

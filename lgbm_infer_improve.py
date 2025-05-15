@@ -112,7 +112,7 @@ def run(params: Dict) -> bool:
 def main(args):
     cfg = DRPInferConfig()
     params = cfg.initialize_parameters(pathToModelDir=filepath,
-                                       default_config="lgbm_params.txt",
+                                       default_config="lgbm_params.ini",
                                        additional_definitions=infer_params)
     timer_infer = frm.Timer()    
     status = run(params)
