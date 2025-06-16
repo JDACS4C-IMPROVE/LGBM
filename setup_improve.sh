@@ -25,8 +25,8 @@ fi
 # Clone IMPROVE lib (if needed) and checkout the branch/tag
 cd ../
 improve_lib_path=$PWD/IMPROVE
-improve_branch="develop"
-# improve_branch="v0.1.0-2024-09-27"
+# improve_branch="develop"
+improve_branch="v0.1.0"
 if [ -d $improve_lib_path ]; then
     echo "IMPROVE repo exists in ${improve_lib_path}"
 else
