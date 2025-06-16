@@ -1,8 +1,8 @@
 # LGBM
 
-This repository demonstrates how to use the [IMPROVE library v0.1.0](https://jdacs4c-improve.github.io/docs/v0.1.0-alpha/) for building a drug response prediction (DRP) model using LightGBM (LGBM), and provides examples with the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
+This repository demonstrates how to use the [IMPROVE library v0.1.0](https://jdacs4c-improve.github.io/docs/v0.1.0/) for building a drug response prediction (DRP) model using LightGBM (LGBM), and provides examples with the benchmark [cross-study analysis (CSA) dataset](https://web.cels.anl.gov/projects/IMPROVE_FTP/candle/public/improve/benchmarks/single_drug_drp/benchmark-data-pilot1/csa_data/).
 
-This version, tagged as `v0.1.0-2024-09-27`, introduces a new API which is designed to encourage broader adoption of IMPROVE and its curated models by the research community.
+This version, tagged as `v0.1.0`, introduces a new API which is designed to encourage broader adoption of IMPROVE and its curated models by the research community.
 
 
 
@@ -15,7 +15,7 @@ ML framework:
 + [LightGBM](https://lightgbm.readthedocs.io/en/stable/) - machine learning framework for building the prediction model
 
 IMPROVE dependencies:
-+ [IMPROVE tag v0.1.0-2024-09-27](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.1.0-2024-09-27)
++ [IMPROVE tag v0.1.0](https://github.com/JDACS4C-IMPROVE/IMPROVE/tree/v0.1.0)
 
 
 
@@ -72,7 +72,7 @@ csa_data/raw_data/
 ```bash
 git clone git@github.com:JDACS4C-IMPROVE/LGBM.git
 cd LGBM
-git checkout v0.1.0-2024-09-27
+git checkout v0.1.0
 ```
 
 
@@ -103,7 +103,7 @@ source setup_improve.sh
 
 This will:
 1. Download cross-study analysis (CSA) benchmark data into `./csa_data/`.
-2. Clone IMPROVE repo (and checkout `v0.1.0-2024-09-27`) outside the LGBM model repo.
+2. Clone IMPROVE repo (and checkout `v0.1.0`) outside the LGBM model repo.
 3. Set up `PYTHONPATH` (adds IMPROVE repo).
 
 
