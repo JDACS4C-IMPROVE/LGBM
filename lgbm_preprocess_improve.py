@@ -24,19 +24,16 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
-import joblib
 
 # [Req] IMPROVE imports
 # Core improvelib imports
 from improvelib.applications.drug_response_prediction.config import DRPPreprocessConfig
-from improvelib.utils import str2bool
 import improvelib.utils as frm
 # Application-specific (DRP) imports
 import improvelib.applications.drug_response_prediction.drp_utils as drp
 
 # Model-specifc imports
 from model_params_def import preprocess_params # [Req]
-from model_utils.utils import gene_selection, scale_df
 
 filepath = Path(__file__).resolve().parent # [Req]
 
