@@ -96,7 +96,7 @@ def run(params: Dict):
     for stage, split_file in stages.items():
         print(f"Prepare data for stage {stage}.")
         print(f"Find intersection of {stage} data.")
-        response_stage = frm.get_y_data_data(split_file=split_file, 
+        response_stage = frm.get_y_data(split_file=split_file, 
                                 benchmark_dir=params['input_dir'], 
                                 y_data_file=params['y_data_file'])
         response_stage = response_stage.dropna(subset=[params['y_col_name']])
