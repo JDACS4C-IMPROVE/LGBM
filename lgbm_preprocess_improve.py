@@ -112,7 +112,9 @@ def run(params: Dict):
         # Prefix gene column names with "ge."
         fea_sep = "."
         fea_prefix = "ge"
-        ge_stage = ge_stage.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge_stage.columns[1:]})
+        ge_stage = ge_stage.rename(columns={fea: f"{fea_prefix}{fea_sep}{fea}" for fea in ge_stage.columns[0:]})
+        fea_prefix_mordred = "mordred"
+        md_stage = md_stage.rename(columns={fea: f"{fea_prefix_mordred}{fea_sep}{fea}" for fea in md_stage.columns[0:]})
 
         # [Req] Build data name
         data_fname = frm.build_ml_data_file_name(data_format=params["data_format"], stage=stage)
