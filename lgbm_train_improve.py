@@ -103,7 +103,10 @@ def run(params: Dict) -> Dict:
     model = lgb.LGBMRegressor(objective='regression', **ml_init_args)
 
     # Train model
+    # python 3.7 (lightgbm 3.1.1)
     ml_fit_args = {'verbose': False, 'early_stopping_rounds': 50}
+    # python 3.9 (lightgbm 4.6.0)
+    # ml_fit_args = {} 
     ml_fit_args['eval_set'] = (xvl, yvl)
     model.fit(xtr, ytr, **ml_fit_args)
 
