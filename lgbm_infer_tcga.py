@@ -54,6 +54,8 @@ def run(params: Dict) -> bool:
     # ------------------------------------------------------
     # Load model input data (ML data)
     # ------------------------------------------------------
+    print(f'input data dir:{params["input_data_dir"]}')
+    print(f'test data fname:{test_data_fname}')
     te_data = pd.read_parquet(Path(params["input_data_dir"]) / test_data_fname)
     fea_list = ["ge", "mordred"]
     fea_sep = "."
@@ -128,3 +130,4 @@ if __name__ == "__main__":
 
 
 # python lgbm_infer_improve_tcga.py --input_data_dir exp_result --input_model_dir exp_result --output_dir exp_result --calc_infer_score true
+
